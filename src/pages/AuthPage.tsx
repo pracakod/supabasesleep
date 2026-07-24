@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { useTheme } from '../contexts/ThemeContext'
 import { supabase } from '../lib/supabase'
-import { Eye, EyeOff, Loader2, Feather } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Feather, Sun, Moon, TreePine, BookOpen } from 'lucide-react'
 
 type Mode = 'login' | 'register' | 'reset' | 'update-password'
 
 export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
   const { signIn, signUp, resetPassword } = useAuth()
+  const { theme, setTheme } = useTheme()
   const [mode, setMode] = useState<Mode>(initialMode || 'login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -20,7 +22,6 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
   const [showTermsModal, setShowTermsModal] = useState<null | 'terms' | 'privacy'>(null)
 
   useEffect(() => {
-    // Sprawdź czy użytkownik wszedł z linku resetującego hasło z Supabase (#access_token w URL)
     if (window.location.hash.includes('type=recovery') || window.location.pathname === '/reset-password') {
       setMode('update-password')
     }
@@ -78,22 +79,66 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
     setLoading(false)
   }
 
+  const themesList = [
+    { id: 'forest', name: 'Zieleń', icon: TreePine },
+    { id: 'dark', name: 'Ciemny', icon: Moon },
+    { id: 'sepia', name: 'Sepia', icon: BookOpen },
+    { id: 'light', name: 'Jasny', icon: Sun },
+  ] as const
+
   return (
     <div style={{
       minHeight: '100dvh',
       width: '100%',
-      background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e1b4b 100%)',
+      backgroundColor: 'var(--bg-primary)',
+      color: 'var(--text-primary)',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '24px 16px',
-      paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 20px))',
+      padding: '20px 16px',
+      paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 16px))',
       fontFamily: 'Inter, system-ui, sans-serif',
-      color: '#f8fafc',
       position: 'relative',
       overflowY: 'auto',
+      transition: 'background-color 0.3s ease, color 0.3s ease',
     }}>
+      {/* Przełącznik motywu w prawym górnym rogu */}
+      <div style={{
+        position: 'absolute',
+        top: 16, right: 16,
+        display: 'flex',
+        gap: 6,
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--border)',
+        padding: 4,
+        borderRadius: 20,
+        zIndex: 20,
+      }}>
+        {themesList.map((t) => {
+          const Icon = t.icon
+          const isActive = theme === t.id
+          return (
+            <button
+              key={t.id}
+              onClick={() => setTheme(t.id)}
+              title={`Motyw: ${t.name}`}
+              style={{
+                background: isActive ? 'var(--accent)' : 'transparent',
+                color: isActive ? (t.id === 'sepia' || t.id === 'light' ? '#ffffff' : '#000000') : 'var(--text-muted)',
+                border: 'none',
+                borderRadius: 14,
+                width: 28, height: 28,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <Icon size={14} />
+            </button>
+          )
+        })}
+      </div>
       {/* Subtelne linie papeterii / siatki w tle */}
       <div style={{
         position: 'absolute', inset: 0,
@@ -103,17 +148,17 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
         opacity: 0.6,
       }} />
 
-      {/* Zgrabna, wyważona karta logowania - Bez 'wielkiego czoła' */}
+      {/* Zgrabna, wyważona karta logowania - Zintegrowana z motywami */}
       <div className="fade-in" style={{
         width: '100%',
         maxWidth: 400,
         position: 'relative',
         zIndex: 10,
-        background: '#0f172a',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border)',
         borderRadius: 20,
         padding: '24px 22px',
-        boxShadow: '0 20px 50px -15px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+        boxShadow: 'var(--shadow)',
         margin: 'auto 0',
       }}>
         {/* Logo i Nazwa w jednym zgrabnym wierszu u góry */}
@@ -121,18 +166,18 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
           <div style={{
             width: 38, height: 38,
             borderRadius: 10,
-            background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+            background: 'var(--accent)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 14px rgba(99, 102, 241, 0.35)',
+            boxShadow: '0 4px 14px var(--accent-glow)',
             flexShrink: 0,
           }}>
-            <Feather size={19} color="#ffffff" />
+            <Feather size={19} color={theme === 'sepia' || theme === 'light' ? '#ffffff' : '#000000'} />
           </div>
           <div>
-            <h1 style={{ fontSize: 17, fontWeight: 800, color: '#ffffff', letterSpacing: '-0.3px', margin: 0, lineHeight: 1.2 }}>
+            <h1 style={{ fontSize: 17, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.3px', margin: 0, lineHeight: 1.2 }}>
               Studio Książki
             </h1>
-            <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 400 }}>
+            <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
               {mode === 'login' ? 'Przestrzeń Pracy dla Autorów' :
                mode === 'register' ? 'Dołącz do grona pisarzy' :
                'Odzyskaj dostęp'}
@@ -144,19 +189,19 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
         {mode !== 'reset' && mode !== 'update-password' && (
           <div style={{
             display: 'flex',
-            background: 'rgba(15, 23, 42, 0.8)',
+            background: 'var(--bg-secondary)',
             borderRadius: 8,
             padding: 3,
             marginBottom: 16,
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            border: '1px solid var(--border)',
           }}>
             {(['login', 'register'] as Mode[]).map(m => (
               <button key={m} onClick={() => { setMode(m); setMessage(null) }}
                 style={{
                   flex: 1, padding: '7px 10px', borderRadius: 6,
-                  background: mode === m ? '#6366f1' : 'transparent',
+                  background: mode === m ? 'var(--accent)' : 'transparent',
                   border: 'none',
-                  color: mode === m ? '#ffffff' : '#94a3b8',
+                  color: mode === m ? (theme === 'sepia' || theme === 'light' ? '#ffffff' : '#000000') : 'var(--text-muted)',
                   fontWeight: mode === m ? 600 : 500,
                   fontSize: 12.5, cursor: 'pointer', transition: 'all 0.2s ease',
                 }}
@@ -170,7 +215,7 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
           {mode === 'register' && (
             <div>
-              <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#cbd5e1', marginBottom: 4 }}>
+              <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>
                 Imię lub Pseudonim autorski
               </label>
               <input
@@ -183,9 +228,9 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
                   width: '100%',
                   padding: '9px 11px',
                   borderRadius: 8,
-                  background: 'rgba(30, 41, 59, 0.5)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#ffffff',
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text-primary)',
                   fontSize: 13,
                   outline: 'none',
                 }}
@@ -195,7 +240,7 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
 
           {mode !== 'update-password' && (
             <div>
-              <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#cbd5e1', marginBottom: 4 }}>
+              <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>
                 Adres e-mail
               </label>
               <input
@@ -208,9 +253,9 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
                   width: '100%',
                   padding: '9px 11px',
                   borderRadius: 8,
-                  background: 'rgba(30, 41, 59, 0.5)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#ffffff',
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text-primary)',
                   fontSize: 13,
                   outline: 'none',
                 }}
@@ -220,7 +265,7 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
 
           {mode !== 'reset' && (
             <div>
-              <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#cbd5e1', marginBottom: 4 }}>
+              <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>
                 {mode === 'update-password' ? 'Nowe Hasło' : 'Hasło'}
               </label>
               <div style={{ position: 'relative' }}>
@@ -234,9 +279,9 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
                     width: '100%',
                     padding: '9px 36px 9px 11px',
                     borderRadius: 8,
-                    background: 'rgba(30, 41, 59, 0.5)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    color: '#ffffff',
+                    background: 'var(--bg-secondary)',
+                    border: '1px solid var(--border)',
+                    color: 'var(--text-primary)',
                     fontSize: 13,
                     outline: 'none',
                   }}
@@ -246,7 +291,7 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
                   onClick={() => setShowPass(!showPass)}
                   style={{
                     position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
-                    background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8',
+                    background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
                 >
@@ -258,7 +303,7 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
 
           {mode === 'update-password' && (
             <div>
-              <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#cbd5e1', marginBottom: 4 }}>
+              <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>
                 Powtórz nowe hasło
               </label>
               <input
@@ -271,9 +316,9 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
                   width: '100%',
                   padding: '9px 11px',
                   borderRadius: 8,
-                  background: 'rgba(30, 41, 59, 0.5)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#ffffff',
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text-primary)',
                   fontSize: 13,
                   outline: 'none',
                 }}
@@ -283,19 +328,19 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
 
             {mode === 'register' && (
               <div style={{ marginTop: 2 }}>
-                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', fontSize: 12, color: '#cbd5e1', lineHeight: 1.5 }}>
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                   <input
                     type="checkbox"
                     checked={termsAccepted}
                     onChange={e => setTermsAccepted(e.target.checked)}
-                    style={{ marginTop: 2, accentColor: '#6366f1', cursor: 'pointer', width: 15, height: 15 }}
+                    style={{ marginTop: 2, accentColor: 'var(--accent)', cursor: 'pointer', width: 15, height: 15 }}
                   />
                   <span>
                     Akceptuję{' '}
                     <button
                       type="button"
                       onClick={() => setShowTermsModal('terms')}
-                      style={{ background: 'none', border: 'none', color: '#818cf8', textDecoration: 'underline', padding: 0, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
+                      style={{ background: 'none', border: 'none', color: 'var(--accent)', textDecoration: 'underline', padding: 0, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
                     >
                       Regulamin
                     </button>
@@ -303,7 +348,7 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
                     <button
                       type="button"
                       onClick={() => setShowTermsModal('privacy')}
-                      style={{ background: 'none', border: 'none', color: '#818cf8', textDecoration: 'underline', padding: 0, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
+                      style={{ background: 'none', border: 'none', color: 'var(--accent)', textDecoration: 'underline', padding: 0, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
                     >
                       Politykę Prywatności
                     </button>
@@ -316,9 +361,9 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
             {message && (
               <div style={{
                 padding: '10px 14px', borderRadius: 8,
-                background: message.type === 'error' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 197, 94, 0.2)',
-                border: `1px solid ${message.type === 'error' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(34, 197, 94, 0.4)'}`,
-                color: message.type === 'error' ? '#fca5a5' : '#86efac',
+                background: message.type === 'error' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)',
+                border: `1px solid ${message.type === 'error' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(34, 197, 94, 0.3)'}`,
+                color: message.type === 'error' ? '#ef4444' : '#22c55e',
                 fontSize: 12.5,
               }}>
                 {message.text}
@@ -332,8 +377,8 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
                 width: '100%',
                 padding: '11.5px',
                 borderRadius: 9,
-                background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-                color: '#ffffff',
+                background: 'var(--accent)',
+                color: theme === 'sepia' || theme === 'light' ? '#ffffff' : '#000000',
                 border: 'none',
                 fontWeight: 700,
                 fontSize: 14,
@@ -342,13 +387,15 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 8,
-                boxShadow: '0 4px 16px rgba(99, 102, 241, 0.35)',
+                boxShadow: '0 4px 16px var(--accent-glow)',
                 marginTop: 4,
               }}
             >
               {loading ? <Loader2 size={18} className="animate-spin" /> : null}
               {mode === 'login' ? 'Wejdź do Warsztatu' :
-               mode === 'register' ? 'Dołącz i Twórz' : 'Wyślij link resetujący'}
+               mode === 'register' ? 'Dołącz i Twórz' :
+               mode === 'reset' ? 'Wyślij link resetujący' :
+               'Zapisz nowe hasło'}
             </button>
           </form>
 
@@ -357,7 +404,7 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
               onClick={() => { setMode('reset'); setMessage(null) }}
               style={{
                 marginTop: 18, background: 'none', border: 'none',
-                color: '#94a3b8', fontSize: 12.5, cursor: 'pointer',
+                color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer',
                 display: 'block', width: '100%', textAlign: 'center',
               }}
             >
@@ -370,7 +417,7 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
             onClick={() => { setMode('login'); setMessage(null) }}
             style={{
               marginTop: 18, background: 'none', border: 'none',
-              color: '#818cf8', fontSize: 12.5, cursor: 'pointer',
+              color: 'var(--accent)', fontSize: 12.5, cursor: 'pointer',
               display: 'block', width: '100%', textAlign: 'center',
             }}
           >
@@ -393,22 +440,22 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
         {/* Piękny cytat */}
         <div style={{
           padding: '12px 18px',
-          background: 'rgba(15, 23, 42, 0.5)',
+          background: 'var(--bg-secondary)',
           borderRadius: 14,
-          border: '1px solid rgba(255, 255, 255, 0.06)',
+          border: '1px solid var(--border)',
           backdropFilter: 'blur(6px)',
         }}>
           <p style={{
             fontFamily: 'Merriweather, serif',
             fontSize: 12.5,
             fontStyle: 'italic',
-            color: '#94a3b8',
+            color: 'var(--text-secondary)',
             lineHeight: 1.5,
             margin: 0,
           }}>
             „Nie ma większej udręki niż noszenie w sobie nienapisanej historii.”
           </p>
-          <span style={{ display: 'block', marginTop: 4, fontSize: 11, color: '#64748b', fontWeight: 500 }}>
+          <span style={{ display: 'block', marginTop: 4, fontSize: 11, color: 'var(--text-muted)', fontWeight: 500 }}>
             — Maya Angelou
           </span>
         </div>
@@ -416,7 +463,7 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
         {/* Wersja projektu i Autor */}
         <div style={{
           fontSize: 11,
-          color: '#475569',
+          color: 'var(--text-muted)',
           display: 'flex',
           alignItems: 'center',
           gap: 12,
