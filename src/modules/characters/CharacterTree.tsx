@@ -127,6 +127,10 @@ function CharacterTreeInner({ characters, relations, onAddCharacterAtPosition }:
         onConnectEnd={onConnectEnd}
         onPaneClick={onPaneDoubleClick}
         fitView
+        minZoom={0.3}
+        maxZoom={1.8}
+        translateExtent={[[-1000, -1000], [2000, 2000]]}
+        nodeExtent={[[-800, -800], [1800, 1800]]}
         attributionPosition="bottom-left"
         style={{ background: 'var(--bg-secondary)' }}
       >
