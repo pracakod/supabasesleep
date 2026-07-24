@@ -13,6 +13,8 @@ import {
   Pencil, Check, X, Loader2, Trash2, AlertTriangle,
 } from 'lucide-react'
 
+import { isLimitReached } from '../../lib/limits'
+
 export default function Dashboard() {
   const { profile, updateProfile } = useAuth()
   const { currentProject, setCurrentProject } = useProject()
@@ -21,6 +23,16 @@ export default function Dashboard() {
 
   const [pseudonym, setPseudonym] = useState(profile?.pseudonym || 'D. K.')
   const [editingProject, setEditingProject] = useState(false)
+
+  const handleOpenNewProjectModal = () => {
+    const limitCheck = isLimitReached(profile?.status, 'projects', projects.length)
+    if (limitCheck.reached) {
+      showToast(limitCheck.message!, 'error')
+      return
+    }
+    setErrorMsg(null)
+    setEditingProject(true)
+  }
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleteConfirmInput, setDeleteConfirmInput] = useState('')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
@@ -203,7 +215,7 @@ export default function Dashboard() {
             Witaj, {profile?.display_name || profile?.pseudonym || 'Autorze'} 👋
           </p>
         </div>
-        <button className="btn btn-primary" onClick={() => setEditingProject(true)}>
+        <button className="btn btn-primary" onClick={handleOpenNewProjectModal}>
           <Plus size={15} /> Nowy Projekt
         </button>
       </div>

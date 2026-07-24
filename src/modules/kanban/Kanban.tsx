@@ -1,7 +1,10 @@
 import { useState } from 'react'
+import { useAuth } from '../../contexts/AuthContext'
+import { useNotification } from '../../contexts/NotificationContext'
 import { useProject } from '../../contexts/ProjectContext'
 import { supabase } from '../../lib/supabase'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { isLimitReached } from '../../lib/limits'
 import type { KanbanCard, Chapter } from '../../types/database.types'
 import {
   DndContext,
@@ -182,11 +185,23 @@ function KanbanColumn({ id, title, cards, onAddCard, onEditCard, onDeleteCard }:
 
 // MAIN KANBAN MODULE
 export default function Kanban() {
+  const { profile } = useAuth()
+  const { showToast } = useNotification()
   const { currentProject } = useProject()
   const qc = useQueryClient()
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<Partial<KanbanCard>>({})
   const [activeColumnId, setActiveColumnId] = useState<string>('unassigned')
+
+  const handleOpenAddCard = (initialForm: Partial<KanbanCard> = {}) => {
+    const limitCheck = isLimitReached(profile?.status, 'kanbanCardsPerProject', cards.length)
+    if (limitCheck.reached) {
+      showToast(limitCheck.message!, 'error')
+      return
+    }
+    setForm(initialForm)
+    setShowForm(true)
+  }
 
   // Sensors for DnD
   const mouseSensor = useSensor(MouseSensor, {
@@ -354,12 +369,9 @@ export default function Kanban() {
         <div className="module-header-actions">
           <button
             className="btn btn-primary"
-            onClick={() => {
-              setForm({ color: '#6366f1', chapter_id: null })
-              setShowForm(true)
-            }}
+            onClick={() => handleOpenAddCard({ color: '#6366f1', chapter_id: null })}
           >
-            <Plus size={14} /> Nowa Karta
+            <Plus size={14} /> Nowa Scena / Karta
           </button>
         </div>
       </div>
@@ -404,8 +416,7 @@ export default function Kanban() {
                   title={col.title}
                   cards={col.cards}
                   onAddCard={() => {
-                    setForm({ color: '#6366f1', chapter_id: col.id === 'unassigned' ? null : col.id })
-                    setShowForm(true)
+                    handleOpenAddCard({ color: '#6366f1', chapter_id: col.id === 'unassigned' ? null : col.id })
                   }}
                   onEditCard={card => {
                     setForm(card)

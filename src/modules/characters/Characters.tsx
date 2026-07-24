@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { useAuth } from '../../contexts/AuthContext'
 import { useProject } from '../../contexts/ProjectContext'
 import { supabase } from '../../lib/supabase'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { isLimitReached } from '../../lib/limits'
 import type { Character, CharacterRelation, CustomTag } from '../../types/database.types'
 import ComboboxTag from '../../components/ui/ComboboxTag'
 import ImageUploader from '../../components/ui/ImageUploader'
@@ -32,6 +34,7 @@ function getAvatarGradient(name: string) {
 }
 
 export default function Characters() {
+  const { profile } = useAuth()
   const { currentProject } = useProject()
   const { showToast } = useNotification()
   const qc = useQueryClient()
@@ -41,6 +44,17 @@ export default function Characters() {
   const [relationForm, setRelationForm] = useState<Partial<CharacterRelation> & { showFor?: string }>({})
   const [sortBy, setSortBy] = useState<'name' | 'role' | 'faction' | 'newest'>('name')
   const [sourceRelationCharId, setSourceRelationCharId] = useState<string | null>(null)
+
+  const handleOpenAddCharacter = () => {
+    const limitCheck = isLimitReached(profile?.status, 'charactersPerProject', characters.length)
+    if (limitCheck.reached) {
+      showToast(limitCheck.message!, 'error')
+      return
+    }
+    setForm({ role: 'secondary' })
+    setSourceRelationCharId(null)
+    setShowForm(true)
+  }
 
   const { data: characters = [] } = useQuery({
     queryKey: ['characters', currentProject?.id],
@@ -174,6 +188,11 @@ export default function Characters() {
   }
 
   const handleAddCharacterAtPosition = (_x: number, _y: number, sourceId?: string) => {
+    const limitCheck = isLimitReached(profile?.status, 'charactersPerProject', characters.length)
+    if (limitCheck.reached) {
+      showToast(limitCheck.message!, 'error')
+      return
+    }
     setForm({ role: 'secondary' })
     setSourceRelationCharId(sourceId || null)
     setShowForm(true)
@@ -237,7 +256,7 @@ export default function Characters() {
           </div>
         </div>
         <div className="module-header-actions">
-          <button className="btn btn-primary" onClick={() => { setForm({ role: 'secondary' }); setShowForm(true) }}>
+          <button className="btn btn-primary" onClick={handleOpenAddCharacter}>
             <Plus size={14} /> Nowa Postać
           </button>
         </div>

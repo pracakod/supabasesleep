@@ -1,7 +1,10 @@
 import { useState } from 'react'
+import { useAuth } from '../../contexts/AuthContext'
+import { useNotification } from '../../contexts/NotificationContext'
 import { useProject } from '../../contexts/ProjectContext'
 import { supabase } from '../../lib/supabase'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { isLimitReached } from '../../lib/limits'
 import type { TimelineEvent, Character, Location, CustomTag } from '../../types/database.types'
 import ComboboxTag from '../../components/ui/ComboboxTag'
 import { Plus, Clock, X, Pencil, Trash2, Calendar, MapPin, Users } from 'lucide-react'
@@ -10,12 +13,24 @@ const DEFAULT_PLOTLINES = ['Główny Wątek', 'Wątek Miłosny', 'Intryga', 'Pro
 const PLOTLINE_COLORS = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#ef4444']
 
 export default function Timeline() {
+  const { profile } = useAuth()
+  const { showToast } = useNotification()
   const { currentProject } = useProject()
   const qc = useQueryClient()
 
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<Partial<TimelineEvent>>({})
   const [sortBy, setSortBy] = useState<'reader' | 'world'>('reader')
+
+  const handleOpenAddEvent = () => {
+    const limitCheck = isLimitReached(profile?.status, 'timelineEventsPerProject', events.length)
+    if (limitCheck.reached) {
+      showToast(limitCheck.message!, 'error')
+      return
+    }
+    setForm({})
+    setShowForm(true)
+  }
 
   // Pobierz wydarzenia
   const { data: events = [] } = useQuery({
@@ -186,7 +201,7 @@ export default function Timeline() {
               Czas w Świecie
             </button>
           </div>
-          <button className="btn btn-primary" onClick={() => { setForm({ timeline_type: 'present', plotline_color: '#6366f1', character_ids: [] }); setShowForm(true) }}>
+          <button className="btn btn-primary" onClick={handleOpenAddEvent}>
             <Plus size={14} /> Nowe Wydarzenie
           </button>
         </div>

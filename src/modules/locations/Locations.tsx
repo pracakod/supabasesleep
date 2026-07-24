@@ -1,7 +1,10 @@
 import { useState } from 'react'
+import { useAuth } from '../../contexts/AuthContext'
+import { useNotification } from '../../contexts/NotificationContext'
 import { useProject } from '../../contexts/ProjectContext'
 import { supabase } from '../../lib/supabase'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { isLimitReached } from '../../lib/limits'
 import type { Location, CustomTag } from '../../types/database.types'
 import ComboboxTag from '../../components/ui/ComboboxTag'
 import ImageUploader from '../../components/ui/ImageUploader'
@@ -10,10 +13,22 @@ import { Plus, MapPin, X, Pencil, Check } from 'lucide-react'
 const DEFAULT_LOCATION_TYPES = ['Miasto', 'Wioska', 'Zamek', 'Las', 'Góry', 'Morze', 'Podziemia', 'Taverna', 'Pałac', 'Ruiny']
 
 export default function Locations() {
+  const { profile } = useAuth()
+  const { showToast } = useNotification()
   const { currentProject } = useProject()
   const qc = useQueryClient()
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<Partial<Location>>({})
+
+  const handleOpenAddLocation = () => {
+    const limitCheck = isLimitReached(profile?.status, 'locationsPerProject', locations.length)
+    if (limitCheck.reached) {
+      showToast(limitCheck.message!, 'error')
+      return
+    }
+    setForm({})
+    setShowForm(true)
+  }
 
   const { data: locations = [] } = useQuery({
     queryKey: ['locations', currentProject?.id],
@@ -74,7 +89,7 @@ export default function Locations() {
           <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)' }}>Baza Miejsc</h1>
         </div>
         <div className="module-header-actions">
-          <button className="btn btn-primary" onClick={() => { setForm({}); setShowForm(true) }}>
+          <button className="btn btn-primary" onClick={handleOpenAddLocation}>
             <Plus size={14} /> Nowa Lokacja
           </button>
         </div>

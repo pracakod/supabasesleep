@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
+import { useAuth } from '../../contexts/AuthContext'
+import { useNotification } from '../../contexts/NotificationContext'
 import { useProject } from '../../contexts/ProjectContext'
 import { supabase } from '../../lib/supabase'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useDebounce } from '../../hooks/useDebounce'
+import { isLimitReached } from '../../lib/limits'
 import type { Chapter } from '../../types/database.types'
 import {
   Plus, Trash2, Download, FileText, GripVertical,
@@ -112,21 +115,32 @@ export default function Editor() {
     if (selectedId) saveChapter(selectedId, content, val)
   }
 
+  const { profile } = useAuth()
+  const { showToast } = useNotification()
+
   const addChapter = useMutation({
     mutationFn: async () => {
+      const limitCheck = isLimitReached(profile?.status, 'chaptersPerProject', chapters.length)
+      if (limitCheck.reached) {
+        throw new Error(limitCheck.message)
+      }
       const pos = chapters.length
-      const { data } = await supabase.from('chapters').insert({
+      const { data, error } = await supabase.from('chapters').insert({
         project_id: currentProject!.id,
         title: `Rozdział ${pos + 1}`,
         content: '',
         position: pos,
       }).select().single()
+      if (error) throw error
       return data as Chapter
     },
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ['chapters', currentProject?.id] })
       setSelectedId(data.id)
     },
+    onError: (err: any) => {
+      showToast(err.message || 'Nie można dodać rozdziału', 'error')
+    }
   })
 
   const deleteChapter = useMutation({
