@@ -29,8 +29,13 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
 
   const setProject = (p: Project | null) => {
     setCurrentProject(p)
-    if (p) localStorage.setItem('sk-current-project', JSON.stringify(p))
-    else localStorage.removeItem('sk-current-project')
+    if (p) {
+      localStorage.setItem('sk-current-project', JSON.stringify(p))
+      localStorage.setItem('sk-last-project-id', p.id)
+    } else {
+      localStorage.removeItem('sk-current-project')
+      localStorage.removeItem('sk-last-project-id')
+    }
   }
 
   return (

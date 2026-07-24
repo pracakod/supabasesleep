@@ -61,6 +61,23 @@ export default function Dashboard() {
     enabled: !!profile?.id,
   })
 
+  // Po wczytaniu listy projektów upewnij się, że wybieramy zapisany projekt z localStorage
+  useEffect(() => {
+    if (projects.length > 0) {
+      if (!currentProject) {
+        const savedId = localStorage.getItem('sk-last-project-id')
+        const found = projects.find(p => p.id === savedId)
+        setCurrentProject(found || projects[0])
+      } else {
+        // Zaktualizuj dane w tle
+        const updated = projects.find(p => p.id === currentProject.id)
+        if (updated && JSON.stringify(updated) !== JSON.stringify(currentProject)) {
+          setCurrentProject(updated)
+        }
+      }
+    }
+  }, [projects])
+
   // Autozapis pseudonimu
   const savePseudonym = useDebounce(async (val: string) => {
     await updateProfile({ pseudonym: val })
