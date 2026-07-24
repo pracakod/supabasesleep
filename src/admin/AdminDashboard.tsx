@@ -26,14 +26,19 @@ export default function AdminDashboard() {
   const { data: upgradeRequests = [] } = useQuery({
     queryKey: ['admin_upgrade_requests'],
     enabled: isAdmin,
+    retry: false,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('upgrade_requests')
-        .select('*')
-        .eq('status', 'pending')
-        .order('created_at', { ascending: false })
-      if (error) return []
-      return data || []
+      try {
+        const { data, error } = await supabase
+          .from('upgrade_requests')
+          .select('*')
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false })
+        if (error) return []
+        return data || []
+      } catch (e) {
+        return []
+      }
     }
   })
 
