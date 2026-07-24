@@ -10,6 +10,7 @@ import ReactFlow, {
 } from 'reactflow'
 import type { Node, Edge, Connection } from 'reactflow'
 import 'reactflow/dist/style.css'
+import { useNotification } from '../../contexts/NotificationContext'
 import type { Character, CharacterRelation } from '../../types/database.types'
 
 interface Props {
@@ -107,6 +108,8 @@ function CharacterTreeInner({ characters, relations, onAddCharacterAtPosition, o
   const [nodes, , onNodesChange] = useNodesState(initNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges)
 
+  const { showToast } = useNotification()
+
   const onConnect = useCallback((connection: Connection) => {
     if (connection.source && connection.target && connection.source !== connection.target) {
       const alreadyExists = relations.some(
@@ -114,12 +117,12 @@ function CharacterTreeInner({ characters, relations, onAddCharacterAtPosition, o
              (r.from_character_id === connection.target && r.to_character_id === connection.source)
       )
       if (alreadyExists) {
-        alert('Relacja między tymi postaciami już istnieje!')
+        showToast('Relacja między tymi postaciami już istnieje!', 'warning')
         return
       }
       setConnectModal({ sourceId: connection.source, targetId: connection.target })
     }
-  }, [relations])
+  }, [relations, showToast])
 
   const handleConfirmRelation = () => {
     if (connectModal && onAddRelation) {
