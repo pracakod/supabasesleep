@@ -121,13 +121,18 @@ export default function AdminDashboard() {
 
   return (
     <div style={{
-      minHeight: '100vh',
-      height: 'auto',
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
       overflowY: 'auto',
       WebkitOverflowScrolling: 'touch',
       background: '#0d1f15',
       color: '#e8f5ee',
-      fontFamily: 'Inter, sans-serif'
+      fontFamily: 'Inter, sans-serif',
+      zIndex: 9999,
+      paddingBottom: 'env(safe-area-inset-bottom, 20px)'
     }}>
       {/* Topbar Admina */}
       <header style={{
