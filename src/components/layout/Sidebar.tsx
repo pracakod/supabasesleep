@@ -78,7 +78,7 @@ export default function Sidebar({ active, onChange, isOpen, onClose }: SidebarPr
 
         {/* Profil użytkownika w stopce */}
         <div style={{
-          padding: '16px 14px calc(16px + env(safe-area-inset-bottom)) 14px',
+          padding: '16px 14px max(28px, calc(16px + env(safe-area-inset-bottom, 28px))) 14px',
           borderTop: '1px solid var(--border)',
           display: 'flex', alignItems: 'center', gap: 10,
           background: 'var(--bg-secondary)',
