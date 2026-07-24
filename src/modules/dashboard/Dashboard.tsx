@@ -16,7 +16,7 @@ import {
 export default function Dashboard() {
   const { profile, updateProfile } = useAuth()
   const { currentProject, setCurrentProject } = useProject()
-  const { addLog } = useNotification()
+  const { addLog, showToast } = useNotification()
   const qc = useQueryClient()
 
   const [pseudonym, setPseudonym] = useState(profile?.pseudonym || 'D. K.')
@@ -40,7 +40,7 @@ export default function Dashboard() {
         await updateCover(url)
       }
     } catch (err: any) {
-      alert(err.message || 'Błąd podczas wgrywania okładki')
+      showToast(err.message || 'Błąd podczas wgrywania okładki', 'error')
     } finally {
       setUploadingCover(false)
     }
@@ -141,7 +141,7 @@ export default function Dashboard() {
     },
     onError: (err: any) => {
       addLog(`Błąd usuwania projektu: ${err.message}`, 'error')
-      alert('Błąd podczas usuwania projektu: ' + err.message)
+      showToast('Błąd podczas usuwania projektu: ' + err.message, 'error')
     }
   })
 
