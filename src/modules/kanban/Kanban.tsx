@@ -443,15 +443,15 @@ export default function Kanban() {
             </div>
 
             <div className="form-group">
-              <label className="label">Rozdział docelowy</label>
+              <label className="label">Rozdział docelowy / Sekcja</label>
               <select
                 className="select"
                 value={form.chapter_id || ''}
                 onChange={e => setForm(f => ({ ...f, chapter_id: e.target.value || null }))}
               >
-                <option value="">-- Pomysły / Luźne Sceny --</option>
+                <option value="">💡 Notatnik / Pomysły ogólne</option>
                 {chapters.map(ch => (
-                  <option key={ch.id} value={ch.id}>{ch.title}</option>
+                  <option key={ch.id} value={ch.id}>📖 {ch.title}</option>
                 ))}
               </select>
             </div>

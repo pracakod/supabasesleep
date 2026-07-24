@@ -416,6 +416,11 @@ export default function Research() {
                     </label>
                   )
                 })}
+                {characters.length === 0 && (
+                  <span style={{ gridColumn: '1/-1', fontSize: 12, color: 'var(--text-muted)' }}>
+                    Brak utworzonych postaci w tym projekcie. Dodaj je najpierw w sekcji <b>Baza Postaci</b>.
+                  </span>
+                )}
               </div>
             </div>
 
