@@ -1,5 +1,5 @@
 import ReactFlow, {
-  Background, Controls, MiniMap,
+  Background, Controls,
   useNodesState, useEdgesState,
   BackgroundVariant,
   ReactFlowProvider,
@@ -136,8 +136,6 @@ function CharacterTreeInner({ characters, relations, onAddCharacterAtPosition }:
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="var(--border)" />
         <Controls style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }} />
-        <MiniMap style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-          nodeColor="var(--accent)" maskColor="rgba(0,0,0,0.3)" />
       </ReactFlow>
     </div>
   )
