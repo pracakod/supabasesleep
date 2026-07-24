@@ -6,7 +6,7 @@ import { useDebounce } from '../../hooks/useDebounce'
 import type { Chapter } from '../../types/database.types'
 import {
   Plus, Trash2, Download, FileText, GripVertical,
-  Hash, AlignJustify, ChevronRight, ChevronLeft,
+  Hash, AlignJustify, ChevronRight, ChevronLeft, Type,
 } from 'lucide-react'
 
 function countWords(text: string) {
@@ -37,6 +37,7 @@ export default function Editor() {
     return saved || 'Merriweather, serif'
   })
 
+  const [showFontMenu, setShowFontMenu] = useState(false)
   const [saved, setSaved] = useState(true)
   const editorRef = useRef<HTMLTextAreaElement>(null)
 
@@ -257,39 +258,106 @@ p { text-indent: 1.5em; margin: 0; }
                 }}
                 placeholder="Tytuł rozdziału..."
               />
-              <div className="editor-stats-container" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                {/* Dyskretne opcje typografii */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--bg-card)', padding: '2px 6px', borderRadius: 6, border: '1px solid var(--border)' }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)' }}>A<sup>A</sup></span>
-                  <select
-                    value={fontSize}
-                    onChange={e => setFontSize(Number(e.target.value))}
-                    style={{
-                      background: 'transparent', border: 'none', color: 'var(--text-primary)',
-                      fontSize: 11, fontWeight: 600, outline: 'none', cursor: 'pointer', padding: '0 2px'
-                    }}
-                    title="Rozmiar czcionki"
-                  >
-                    <option value={13}>13px</option>
-                    <option value={15}>15px</option>
-                    <option value={17}>17px</option>
-                    <option value={20}>20px</option>
-                  </select>
-                  <span style={{ color: 'var(--border)' }}>|</span>
-                  <select
-                    value={fontFamily}
-                    onChange={e => setFontFamily(e.target.value)}
-                    style={{
-                      background: 'transparent', border: 'none', color: 'var(--text-primary)',
-                      fontSize: 11, fontWeight: 600, outline: 'none', cursor: 'pointer', padding: '0 2px'
-                    }}
-                    title="Krój czcionki"
-                  >
-                    <option value="Merriweather, serif">Książkowa (Serif)</option>
-                    <option value="Inter, sans-serif">Nowoczesna (Sans)</option>
-                    <option value="Courier New, monospace">Maszynopis (Mono)</option>
-                  </select>
-                </div>
+              <div className="editor-stats-container" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, position: 'relative' }}>
+                {/* Przycisk menu typografii */}
+                <button
+                  type="button"
+                  onClick={() => setShowFontMenu(v => !v)}
+                  className={`btn-icon ${showFontMenu ? 'btn-primary' : 'btn-ghost'}`}
+                  title="Ustawienia typografii i tekstu"
+                  style={{ padding: '4px 8px', display: 'flex', alignItems: 'center', gap: 4, height: 28, fontSize: 12, borderRadius: 6 }}
+                >
+                  <Type size={14} />
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>{fontSize}px</span>
+                </button>
+
+                {/* Popover Menu Typografii */}
+                {showFontMenu && (
+                  <>
+                    <div
+                      style={{ position: 'fixed', inset: 0, zIndex: 90 }}
+                      onClick={() => setShowFontMenu(false)}
+                    />
+                    <div className="fade-in" style={{
+                      position: 'absolute',
+                      top: 36,
+                      right: 0,
+                      zIndex: 100,
+                      background: 'var(--bg-card)',
+                      border: '1px solid var(--border)',
+                      borderRadius: 10,
+                      padding: 12,
+                      width: 220,
+                      boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 12,
+                    }}>
+                      <div>
+                        <span style={{ fontSize: 10.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>
+                          Rozmiar czcionki
+                        </span>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4 }}>
+                          {[13, 15, 17, 20].map(sz => (
+                            <button
+                              key={sz}
+                              onClick={() => setFontSize(sz)}
+                              style={{
+                                padding: '4px 0',
+                                borderRadius: 6,
+                                border: '1px solid',
+                                borderColor: fontSize === sz ? 'var(--accent)' : 'var(--border)',
+                                background: fontSize === sz ? 'var(--accent-glow)' : 'transparent',
+                                color: fontSize === sz ? 'var(--accent)' : 'var(--text-primary)',
+                                fontSize: 11,
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {sz}px
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div style={{ borderTop: '1px solid var(--border)', paddingTop: 10 }}>
+                        <span style={{ fontSize: 10.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>
+                          Krój pisma
+                        </span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          {[
+                            { id: 'Merriweather, serif', name: 'Książkowa (Serif)', sample: 'Aa' },
+                            { id: 'Inter, sans-serif', name: 'Nowoczesna (Sans)', sample: 'Aa' },
+                            { id: 'Courier New, monospace', name: 'Maszynopis (Mono)', sample: 'Aa' },
+                          ].map(f => (
+                            <button
+                              key={f.id}
+                              onClick={() => setFontFamily(f.id)}
+                              style={{
+                                padding: '6px 8px',
+                                borderRadius: 6,
+                                border: '1px solid',
+                                borderColor: fontFamily === f.id ? 'var(--accent)' : 'transparent',
+                                background: fontFamily === f.id ? 'var(--accent-glow)' : 'transparent',
+                                color: fontFamily === f.id ? 'var(--accent)' : 'var(--text-primary)',
+                                fontSize: 12,
+                                textAlign: 'left',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                cursor: 'pointer',
+                                fontFamily: f.id,
+                              }}
+                            >
+                              <span>{f.name}</span>
+                              <span style={{ fontSize: 11, opacity: 0.6 }}>{f.sample}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap' }}>
                   <Hash size={11} /> {wordCount}<span className="editor-stats-text"> słów</span>
