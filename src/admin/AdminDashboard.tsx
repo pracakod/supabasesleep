@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Profile } from '../types/database.types'
-import { Shield, Users, BookOpen, FileText, Star, Ban, Unlock, LogOut, Trash2 } from 'lucide-react'
+import { Shield, Users, BookOpen, FileText, Star, LogOut, Trash2 } from 'lucide-react'
 
 export default function AdminDashboard() {
   const qc = useQueryClient()
@@ -48,7 +48,7 @@ export default function AdminDashboard() {
 
   // Mutacje statusu użytkownika
   const updateStatus = useMutation({
-    mutationFn: async ({ userId, status }: { userId: string; status: 'free' | 'premium' | 'blocked' }) => {
+    mutationFn: async ({ userId, status }: { userId: string; status: 'free' | 'basic' | 'pro' | 'blocked' }) => {
       const { error } = await supabase
         .from('profiles')
         .update({ status, updated_at: new Date().toISOString() })
@@ -82,7 +82,9 @@ export default function AdminDashboard() {
 
   // Obliczenia statystyk z pobranych profili (jako backup)
   const totalWords = users.reduce((acc, u) => acc + (u.total_words || 0), 0)
-  const premiumUsersCount = users.filter(u => u.status === 'premium').length
+  const basicCount  = users.filter(u => u.status === 'basic').length
+  const proCount    = users.filter(u => u.status === 'pro').length
+  const blockedCount = users.filter(u => u.status === 'blocked').length
 
   if (!isAdmin) {
     window.location.href = '/admin-login'
@@ -175,8 +177,9 @@ export default function AdminDashboard() {
               <Star size={22} />
             </div>
             <div>
-              <span style={{ fontSize: 12, color: '#9dbfaa' }}>Konta Premium</span>
-              <h2 style={{ fontSize: 24, fontWeight: 800, marginTop: 2 }}>{premiumUsersCount}</h2>
+              <span style={{ fontSize: 12, color: '#9dbfaa' }}>Basic / Pro</span>
+              <h2 style={{ fontSize: 24, fontWeight: 800, marginTop: 2 }}>{basicCount + proCount}</h2>
+              <span style={{ fontSize: 10, color: '#9dbfaa' }}>{basicCount} basic · {proCount} pro · {blockedCount} zablok.</span>
             </div>
           </div>
         </div>
@@ -222,47 +225,43 @@ export default function AdminDashboard() {
                       <td style={{ color: '#9dbfaa' }}>{new Date(user.created_at).toLocaleDateString('pl-PL')}</td>
                       <td style={{ fontWeight: 600 }}>{(user.total_words || 0).toLocaleString()}</td>
                       <td>
-                        {user.status === 'premium' && <span className="badge badge-premium">Premium</span>}
-                        {user.status === 'free' && <span className="badge badge-free">Darmowy</span>}
-                        {user.status === 'blocked' && <span className="badge badge-blocked">Zablokowany</span>}
+                        <span style={{
+                          padding: '3px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700,
+                          background: user.status === 'pro' ? 'rgba(236,72,153,0.15)'
+                            : user.status === 'basic' ? 'rgba(59,130,246,0.15)'
+                            : user.status === 'blocked' ? 'rgba(239,68,68,0.15)'
+                            : 'rgba(74,222,128,0.1)',
+                          color: user.status === 'pro' ? '#ec4899'
+                            : user.status === 'basic' ? '#3b82f6'
+                            : user.status === 'blocked' ? '#ef4444'
+                            : '#4ade80',
+                        }}>
+                          {user.status === 'pro' ? '🚀 Pro'
+                            : user.status === 'basic' ? '⭐ Podstawowa'
+                            : user.status === 'blocked' ? '🚫 Zablokowany'
+                            : '🆓 Darmowy'}
+                        </span>
                       </td>
                       <td style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                          {user.status !== 'premium' ? (
-                            <button
-                              onClick={() => updateStatus.mutate({ userId: user.id, status: 'premium' })}
-                              className="btn btn-ghost btn-sm"
-                              style={{ borderColor: '#2a4a35', color: '#f59e0b', padding: '4px 8px', fontSize: 11 }}
-                            >
-                              Daj Premium
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => updateStatus.mutate({ userId: user.id, status: 'free' })}
-                              className="btn btn-ghost btn-sm"
-                              style={{ borderColor: '#2a4a35', color: '#9dbfaa', padding: '4px 8px', fontSize: 11 }}
-                            >
-                              Zabierz Premium
-                            </button>
-                          )}
-
-                          {user.status !== 'blocked' ? (
-                            <button
-                              onClick={() => updateStatus.mutate({ userId: user.id, status: 'blocked' })}
-                              className="btn btn-ghost btn-sm"
-                              style={{ borderColor: '#2a4a35', color: '#ef4444', padding: '4px 8px', fontSize: 11 }}
-                            >
-                              <Ban size={11} style={{ marginRight: 2 }} /> Zablokuj
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => updateStatus.mutate({ userId: user.id, status: 'free' })}
-                              className="btn btn-ghost btn-sm"
-                              style={{ borderColor: '#2a4a35', color: '#4ade80', padding: '4px 8px', fontSize: 11 }}
-                            >
-                              <Unlock size={11} style={{ marginRight: 2 }} /> Odblokuj
-                            </button>
-                          )}
+                        <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', alignItems: 'center' }}>
+                          <select
+                            value={user.status}
+                            onChange={e => updateStatus.mutate({ userId: user.id, status: e.target.value as any })}
+                            style={{
+                              background: '#0d1f15',
+                              border: '1px solid #2a4a35',
+                              borderRadius: 6,
+                              color: '#e8f5ee',
+                              fontSize: 12,
+                              padding: '4px 8px',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <option value="free">🆓 Darmowy</option>
+                            <option value="basic">⭐ Podstawowa</option>
+                            <option value="pro">🚀 Pro</option>
+                            <option value="blocked">🚫 Zablokowany</option>
+                          </select>
 
                           <button
                             onClick={() => {

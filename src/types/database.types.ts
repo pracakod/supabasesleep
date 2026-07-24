@@ -4,7 +4,7 @@ export interface Profile {
   display_name: string
   pseudonym: string
   avatar_url: string | null
-  status: 'free' | 'premium' | 'blocked'
+  status: 'free' | 'basic' | 'pro' | 'premium' | 'blocked'
   total_words: number
   created_at: string
   updated_at: string
