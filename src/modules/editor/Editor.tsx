@@ -257,38 +257,44 @@ p { text-indent: 1.5em; margin: 0; }
                 }}
                 placeholder="Tytuł rozdziału..."
               />
-              <div className="editor-stats-container" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                {/* Rozmiar czcionki */}
-                <select
-                  value={fontSize}
-                  onChange={e => setFontSize(Number(e.target.value))}
-                  className="select"
-                  style={{ width: 'auto', height: 26, fontSize: 11, padding: '2px 20px 2px 6px', borderRadius: 6 }}
-                  title="Rozmiar czcionki"
-                >
-                  <option value={13}>Mała (13px)</option>
-                  <option value={15}>Domyślna (15px)</option>
-                  <option value={17}>Duża (17px)</option>
-                  <option value={20}>Bardzo duża (20px)</option>
-                </select>
+              <div className="editor-stats-container" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                {/* Dyskretne opcje typografii */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--bg-card)', padding: '2px 6px', borderRadius: 6, border: '1px solid var(--border)' }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)' }}>A<sup>A</sup></span>
+                  <select
+                    value={fontSize}
+                    onChange={e => setFontSize(Number(e.target.value))}
+                    style={{
+                      background: 'transparent', border: 'none', color: 'var(--text-primary)',
+                      fontSize: 11, fontWeight: 600, outline: 'none', cursor: 'pointer', padding: '0 2px'
+                    }}
+                    title="Rozmiar czcionki"
+                  >
+                    <option value={13}>13px</option>
+                    <option value={15}>15px</option>
+                    <option value={17}>17px</option>
+                    <option value={20}>20px</option>
+                  </select>
+                  <span style={{ color: 'var(--border)' }}>|</span>
+                  <select
+                    value={fontFamily}
+                    onChange={e => setFontFamily(e.target.value)}
+                    style={{
+                      background: 'transparent', border: 'none', color: 'var(--text-primary)',
+                      fontSize: 11, fontWeight: 600, outline: 'none', cursor: 'pointer', padding: '0 2px'
+                    }}
+                    title="Krój czcionki"
+                  >
+                    <option value="Merriweather, serif">Książkowa (Serif)</option>
+                    <option value="Inter, sans-serif">Nowoczesna (Sans)</option>
+                    <option value="Courier New, monospace">Maszynopis (Mono)</option>
+                  </select>
+                </div>
 
-                {/* Krój czcionki */}
-                <select
-                  value={fontFamily}
-                  onChange={e => setFontFamily(e.target.value)}
-                  className="select"
-                  style={{ width: 'auto', height: 26, fontSize: 11, padding: '2px 20px 2px 6px', borderRadius: 6 }}
-                  title="Krój czcionki"
-                >
-                  <option value="Merriweather, serif">Szeryfowa (Książkowa)</option>
-                  <option value="Inter, sans-serif">Bezszeryfowa (Nowoczesna)</option>
-                  <option value="Courier New, monospace">Maszynopis (Monospace)</option>
-                </select>
-
-                <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap' }}>
                   <Hash size={11} /> {wordCount}<span className="editor-stats-text"> słów</span>
                 </span>
-                <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap' }}>
                   <AlignJustify size={11} /> {charCount}<span className="editor-stats-text"> znaków</span>
                 </span>
                 <span style={{ fontSize: 10, color: saved ? '#22c55e' : '#f59e0b', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap' }}>
@@ -298,7 +304,7 @@ p { text-indent: 1.5em; margin: 0; }
                   onClick={() => deleteChapter.mutate(selected.id)}
                   className="btn-icon btn-ghost"
                   title="Usuń rozdział"
-                  style={{ color: '#ef4444', padding: 6 }}
+                  style={{ color: '#ef4444', padding: 4 }}
                 >
                   <Trash2 size={14} />
                 </button>
@@ -306,7 +312,7 @@ p { text-indent: 1.5em; margin: 0; }
             </div>
 
             {/* Edytor */}
-            <div style={{ flex: 1, overflow: 'auto', background: 'var(--editor-bg)', padding: '20px 10px' }}>
+            <div style={{ flex: 1, overflow: 'auto', background: 'var(--editor-bg)' }}>
               <textarea
                 ref={editorRef}
                 className="manuscript-editor"
