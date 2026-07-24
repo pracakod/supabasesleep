@@ -6,6 +6,7 @@ import ReactFlow, {
   ReactFlowProvider,
   useReactFlow,
   addEdge,
+  Handle, Position,
 } from 'reactflow'
 import type { Node, Edge, Connection } from 'reactflow'
 import 'reactflow/dist/style.css'
@@ -18,30 +19,51 @@ interface Props {
   onAddRelation?: (fromId: string, toId: string, type: string) => void
 }
 
-function buildGraph(characters: Character[], relations: CharacterRelation[]) {
-  const nodes: Node[] = characters.map((c, i) => ({
-    id: c.id,
-    type: 'default',
-    data: {
-      label: (
-        <div style={{ textAlign: 'center', fontFamily: 'Inter, sans-serif' }}>
-          <div style={{ fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>{c.name}</div>
-          {c.nickname && <div style={{ fontSize: 10, color: 'var(--text-muted)', fontStyle: 'italic' }}>„{c.nickname}"</div>}
-          {c.faction && <div style={{ fontSize: 9, color: 'var(--accent)', marginTop: 2 }}>{c.faction}</div>}
-        </div>
-      ),
-    },
-    position: {
-      x: (i % 3) * 260 + 40,
-      y: Math.floor(i / 3) * 180 + 40,
-    },
-    style: {
+function CharacterNode({ data }: { data: any }) {
+  return (
+    <div style={{
       background: 'var(--bg-card)',
-      border: `2px solid ${c.role === 'main' ? 'var(--accent)' : 'var(--border)'}`,
+      border: `2px solid ${data.isMain ? 'var(--accent)' : 'var(--border)'}`,
       borderRadius: 10,
       padding: '10px 14px',
       color: 'var(--text-primary)',
-      minWidth: 130,
+      minWidth: 140,
+      textAlign: 'center',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+      position: 'relative',
+    }}>
+      <Handle type="target" position={Position.Top} id="top-target" style={{ background: 'var(--accent)', width: 10, height: 10 }} />
+      <Handle type="source" position={Position.Top} id="top-source" style={{ background: 'var(--accent)', width: 10, height: 10 }} />
+      
+      <Handle type="target" position={Position.Bottom} id="bottom-target" style={{ background: 'var(--accent)', width: 10, height: 10 }} />
+      <Handle type="source" position={Position.Bottom} id="bottom-source" style={{ background: 'var(--accent)', width: 10, height: 10 }} />
+
+      <Handle type="target" position={Position.Left} id="left-target" style={{ background: 'var(--accent)', width: 10, height: 10 }} />
+      <Handle type="source" position={Position.Left} id="left-source" style={{ background: 'var(--accent)', width: 10, height: 10 }} />
+
+      <Handle type="target" position={Position.Right} id="right-target" style={{ background: 'var(--accent)', width: 10, height: 10 }} />
+      <Handle type="source" position={Position.Right} id="right-source" style={{ background: 'var(--accent)', width: 10, height: 10 }} />
+
+      <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--text-primary)' }}>{data.name}</div>
+      {data.nickname && <div style={{ fontSize: 11, color: 'var(--text-muted)', fontStyle: 'italic', marginTop: 2 }}>„{data.nickname}”</div>}
+      {data.faction && <div style={{ fontSize: 9.5, color: 'var(--accent)', marginTop: 4, fontWeight: 600 }}>{data.faction}</div>}
+    </div>
+  )
+}
+
+function buildGraph(characters: Character[], relations: CharacterRelation[]) {
+  const nodes: Node[] = characters.map((c, i) => ({
+    id: c.id,
+    type: 'characterNode',
+    data: {
+      name: c.name,
+      nickname: c.nickname,
+      faction: c.faction,
+      isMain: c.role === 'main',
+    },
+    position: {
+      x: (i % 3) * 280 + 40,
+      y: Math.floor(i / 3) * 190 + 40,
     },
   }))
 
@@ -68,7 +90,9 @@ function buildGraph(characters: Character[], relations: CharacterRelation[]) {
   return { nodes, edges }
 }
 
-const nodeTypes = {}
+const nodeTypes = {
+  characterNode: CharacterNode,
+}
 const edgeTypes = {}
 
 function CharacterTreeInner({ characters, relations, onAddCharacterAtPosition, onAddRelation }: Props) {
