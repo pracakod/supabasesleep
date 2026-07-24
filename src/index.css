@@ -771,6 +771,9 @@ body {
   .mobile-only-back-btn {
     display: inline-flex !important;
   }
+  .editor-stats-text {
+    display: none !important;
+  }
 
   /* Form grid mobile optimizations */
   .form-grid-avatar {

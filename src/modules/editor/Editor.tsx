@@ -6,7 +6,7 @@ import { useDebounce } from '../../hooks/useDebounce'
 import type { Chapter } from '../../types/database.types'
 import {
   Plus, Trash2, Download, FileText, GripVertical,
-  Hash, AlignJustify, ChevronRight, ChevronLeft, Type,
+  Hash, AlignJustify, ChevronRight, ChevronLeft, Type, Maximize2, Minimize2,
 } from 'lucide-react'
 
 function countWords(text: string) {
@@ -38,6 +38,7 @@ export default function Editor() {
   })
 
   const [showFontMenu, setShowFontMenu] = useState(false)
+  const [isFocusMode, setIsFocusMode] = useState(false)
   const [saved, setSaved] = useState(true)
   const editorRef = useRef<HTMLTextAreaElement>(null)
 
@@ -48,6 +49,16 @@ export default function Editor() {
   useEffect(() => {
     localStorage.setItem('sk-editor-font-family', fontFamily)
   }, [fontFamily])
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFocusMode) {
+        setIsFocusMode(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isFocusMode])
 
   const { data: chapters = [] } = useQuery({
     queryKey: ['chapters', currentProject?.id],
@@ -359,6 +370,17 @@ p { text-indent: 1.5em; margin: 0; }
                   </>
                 )}
 
+                {/* Przycisk Trybu Skupienia */}
+                <button
+                  type="button"
+                  onClick={() => setIsFocusMode(v => !v)}
+                  className={`btn-icon ${isFocusMode ? 'btn-primary' : 'btn-ghost'}`}
+                  title={isFocusMode ? "Wyłącz tryb skupienia" : "Włącz tryb skupienia (Bez rozpraszaczy)"}
+                  style={{ padding: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  {isFocusMode ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                </button>
+
                 <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap' }}>
                   <Hash size={11} /> {wordCount}<span className="editor-stats-text"> słów</span>
                 </span>
@@ -380,7 +402,37 @@ p { text-indent: 1.5em; margin: 0; }
             </div>
 
             {/* Edytor */}
-            <div style={{ flex: 1, overflow: 'auto', background: 'var(--editor-bg)' }}>
+            <div style={{
+              flex: 1,
+              overflow: 'auto',
+              background: 'var(--editor-bg)',
+              position: isFocusMode ? 'fixed' : 'relative',
+              inset: isFocusMode ? 0 : 'auto',
+              zIndex: isFocusMode ? 9999 : 'auto',
+              padding: isFocusMode ? '20px 0' : 0,
+            }}>
+              {/* Przycisk wyjścia z Trybu Skupienia na górze w rogu */}
+              {isFocusMode && (
+                <button
+                  onClick={() => setIsFocusMode(false)}
+                  className="btn btn-ghost btn-sm"
+                  style={{
+                    position: 'fixed',
+                    top: 16,
+                    right: 24,
+                    zIndex: 10000,
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                    gap: 6,
+                    fontSize: 12,
+                    fontWeight: 600,
+                  }}
+                >
+                  <Minimize2 size={14} /> Opuść tryb skupienia (Esc)
+                </button>
+              )}
+
               <textarea
                 ref={editorRef}
                 className="manuscript-editor"
@@ -394,6 +446,7 @@ p { text-indent: 1.5em; margin: 0; }
                   border: 'none',
                   fontSize: `${fontSize}px`,
                   fontFamily: fontFamily,
+                  paddingTop: isFocusMode ? 60 : undefined,
                 }}
               />
             </div>
