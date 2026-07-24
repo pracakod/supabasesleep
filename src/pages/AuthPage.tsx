@@ -513,17 +513,17 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
               {showTermsModal === 'terms' ? (
                 <>
                   <p><strong style={{ color: '#ffffff' }}>1. Postanowienia ogólne i Administrator</strong><br />Serwis Studio Książki służy do tworzenia, zarządzania i edycji utworów literackich oraz materiałów pomocniczych dla autorów. Administratorem serwisu jest Studio Książki.</p>
-                  <p><strong style={{ color: '#ffffff' }}>2. Konto Użytkownika</strong><br />Każdy użytkownik jest odpowiedzialny za zachowanie poufności swoich danych logowania oraz za wszelkie działania podejmowane na jego koncie.</p>
-                  <p><strong style={{ color: '#ffffff' }}>3. Prawa autorskie i treść</strong><br />Wszelkie materiały i treści tworzone przez Użytkownika wewnątrz aplikacji stanowią jego wyłączną własność. Serwis nie rości sobie żadnych praw autorskich do utworów pisarzy.</p>
-                  <p><strong style={{ color: '#ffffff' }}>4. Dostępność i bazy danych</strong><br />Aplikacja świadczy usługi w modelu SaaS. Korzystanie z wersji darmowej podlega standardowym ograniczeniom technicznym serwisu.</p>
-                  <p><strong style={{ color: '#ffffff' }}>5. Kontakt i pomoc</strong><br />W sprawach regulaminu i pomocy technicznej prosimy o kontakt pod adresem e-mail: <u style={{ color: '#a5b4fc' }}>kontakt@studioksiazki.pl</u>.</p>
+                  <p><strong style={{ color: '#ffffff' }}>2. Własność Intelektualna i Prawa Autorskie</strong><br />Wszelkie teksty, pomysły, postacie, osie czasu i treść utworów tworzone w aplikacji stanowią wyłączną, autorską własność Użytkownika. Administrator nie rości sobie żadnych praw autorskich ani majątkowych do prac autorów.</p>
+                  <p><strong style={{ color: '#ffffff' }}>3. Bezwzględna Poufność Treści i Rękopisów</strong><br />Administrator zobowiązuje się do zachowania bezwzględnej poufności. Administrator ani nikt z obsługi technicznej nie przegląda, nie kopiuje ani nie analizuje prywatnych utworów i rozdziałów Użytkownika. Dostęp do treści jest zabezpieczony na poziomie bazy danych (RLS).</p>
+                  <p><strong style={{ color: '#ffffff' }}>4. Konto i Bezpieczeństwo</strong><br />Każdy Użytkownik odpowiada za poufność swoich danych logowania. Korzystanie z wersji darmowej podlega standardowym ograniczeniom technicznym serwisu.</p>
+                  <p><strong style={{ color: '#ffffff' }}>5. Kontakt i Pomoc</strong><br />W sprawach regulaminowych i technicznych prosimy o kontakt pod adresem: <u style={{ color: '#a5b4fc' }}>kontakt@studioksiazki.pl</u>.</p>
                 </>
               ) : (
                 <>
-                  <p><strong style={{ color: '#ffffff' }}>1. Ochrona danych osobowych i Administrator</strong><br />Zapewniamy pełną ochronę prywatności użytkowników zgodnie z RODO i obowiązującymi przepisami prawa. Administratorem Twoich danych osobowych jest Studio Książki.</p>
-                  <p><strong style={{ color: '#ffffff' }}>2. Przetwarzanie danych</strong><br />Przetwarzamy Twój adres e-mail oraz nazwę profilu wyłącznie w celu świadczenia usługi logowania i synchronizacji Twoich projektów książkowych.</p>
-                  <p><strong style={{ color: '#ffffff' }}>3. Bezpieczeństwo i szyfrowanie</strong><br />Dane składowane są w bezpiecznej infrastrukturze Supabase z szyfrowaniem połączeń (TLS/SSL).</p>
-                  <p><strong style={{ color: '#ffffff' }}>4. Twoje prawa i kontakt</strong><br />Masz prawo wglądu, modyfikacji oraz żądania całkowitego usunięcia swoich danych w dowolnym momencie w ustawieniach profilu. Kontakt w sprawach prywatności: <u style={{ color: '#a5b4fc' }}>kontakt@studioksiazki.pl</u>.</p>
+                  <p><strong style={{ color: '#ffffff' }}>1. Ochrona Prywatności i Administrator</strong><br />Zapewniamy pełną ochronę prywatności użytkowników zgodnie z RODO i międzynarodowymi przepisami o ochronie danych. Administratorem Twoich danych jest Studio Książki.</p>
+                  <p><strong style={{ color: '#ffffff' }}>2. Przetwarzanie i Bezpieczeństwo Rękopisów</strong><br />Twój adres e-mail przetwarzamy wyłącznie do logowania i identyfikacji konta. Treści Twoich utwórów są Twoją prywatną własnością, chronioną izolacją dostępu (Row-Level Security) oraz szyfrowanymi połączeniami SSL/TLS.</p>
+                  <p><strong style={{ color: '#ffffff' }}>3. Zakaz Wglądu i Wykorzystywania Utworów</strong><br />Zapewniamy, że żadne treści książek nie są i nigdy nie będą udostępniane podmiotom trzecim, sprzedawane ani wykorzystywane do trenowania modeli sztucznej inteligencji bez Twojej wiedzy i zgody.</p>
+                  <p><strong style={{ color: '#ffffff' }}>4. Twoje Prawa i Usuwanie Danych</strong><br />Masz prawo wglądu, modyfikacji oraz żądania bezpowrotnego usunięcia swojego konta i wszystkich projektów. Kontakt: <u style={{ color: '#a5b4fc' }}>kontakt@studioksiazki.pl</u>.</p>
                 </>
               )}
             </div>
