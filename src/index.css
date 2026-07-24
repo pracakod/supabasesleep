@@ -127,6 +127,7 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  padding-bottom: calc(40px + env(safe-area-inset-bottom, 20px));
 }
 
 .main-content::-webkit-scrollbar { width: 6px; }
@@ -698,6 +699,7 @@ body {
 @media (max-width: 768px) {
   .dashboard-container {
     padding: 12px;
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 20px));
   }
 
   .card {
