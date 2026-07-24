@@ -30,8 +30,8 @@ function buildGraph(characters: Character[], relations: CharacterRelation[]) {
       ),
     },
     position: {
-      x: (i % 4) * 180 + 50,
-      y: Math.floor(i / 4) * 160 + 50,
+      x: (i % 3) * 260 + 40,
+      y: Math.floor(i / 3) * 180 + 40,
     },
     style: {
       background: 'var(--bg-card)',
@@ -54,9 +54,11 @@ function buildGraph(characters: Character[], relations: CharacterRelation[]) {
         source: rel.from_character_id,
         target: rel.to_character_id,
         label: rel.relation_type,
-        labelStyle: { fontSize: 10, fill: 'var(--text-muted)' },
-        style: { stroke: 'var(--border)' },
-        type: 'straight',
+        labelStyle: { fontSize: 10, fill: 'var(--text-primary)', fontWeight: 600 },
+        labelBgStyle: { fill: 'var(--bg-card)', stroke: 'var(--border)', strokeWidth: 1, rx: 4, ry: 4 },
+        labelBgPadding: [6, 4],
+        style: { stroke: 'var(--accent)', strokeWidth: 2 },
+        type: 'smoothstep',
       })
     }
   })
