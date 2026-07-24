@@ -244,160 +244,169 @@ p { text-indent: 1.5em; margin: 0; }
       <div className="editor-content">
         {selected ? (
           <>
-            {/* Pasek tytułu */}
+            {/* Pasek tytułu i narzędzi */}
             <div style={{
-              padding: '10px 24px', borderBottom: '1px solid var(--border)',
-              background: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: 12,
+              padding: '10px 16px', borderBottom: '1px solid var(--border)',
+              background: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', gap: 6,
             }}>
-              {/* Przycisk wstecz na mobile */}
-              <button
-                onClick={() => setSelectedId(null)}
-                className="btn-icon btn-ghost mobile-only-back-btn"
-                style={{ padding: 6, display: 'none', alignItems: 'center', justifyContent: 'center' }}
-                title="Powrót do rozdziałów"
-              >
-                <ChevronLeft size={16} />
-              </button>
-
-              <input
-                value={title}
-                onChange={e => handleTitleChange(e.target.value)}
-                style={{
-                  background: 'transparent', border: 'none', outline: 'none',
-                  fontSize: 16, fontWeight: 700, color: 'var(--text-primary)',
-                  flex: 1, fontFamily: 'Inter, sans-serif', minWidth: 0,
-                }}
-                placeholder="Tytuł rozdziału..."
-              />
-              <div className="editor-stats-container" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, position: 'relative' }}>
-                {/* Przycisk menu typografii */}
+              {/* Górny wiersz: Wstecz + Tytuł rozdziału */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%' }}>
                 <button
-                  type="button"
-                  onClick={() => setShowFontMenu(v => !v)}
-                  className={`btn-icon ${showFontMenu ? 'btn-primary' : 'btn-ghost'}`}
-                  title="Ustawienia typografii i tekstu"
-                  style={{ padding: '4px 8px', display: 'flex', alignItems: 'center', gap: 4, height: 28, fontSize: 12, borderRadius: 6 }}
+                  onClick={() => setSelectedId(null)}
+                  className="btn-icon btn-ghost mobile-only-back-btn"
+                  style={{ padding: 6, display: 'none', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                  title="Powrót do rozdziałów"
                 >
-                  <Type size={14} />
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>{fontSize}px</span>
+                  <ChevronLeft size={16} />
                 </button>
 
-                {/* Popover Menu Typografii */}
-                {showFontMenu && (
-                  <>
-                    <div
-                      style={{ position: 'fixed', inset: 0, zIndex: 90 }}
-                      onClick={() => setShowFontMenu(false)}
-                    />
-                    <div className="fade-in" style={{
-                      position: 'absolute',
-                      top: 36,
-                      right: 0,
-                      zIndex: 100,
-                      background: 'var(--bg-card)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 10,
-                      padding: 12,
-                      width: 220,
-                      boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 12,
-                    }}>
-                      <div>
-                        <span style={{ fontSize: 10.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>
-                          Rozmiar czcionki
-                        </span>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4 }}>
-                          {[13, 15, 17, 20].map(sz => (
-                            <button
-                              key={sz}
-                              onClick={() => setFontSize(sz)}
-                              style={{
-                                padding: '4px 0',
-                                borderRadius: 6,
-                                border: '1px solid',
-                                borderColor: fontSize === sz ? 'var(--accent)' : 'var(--border)',
-                                background: fontSize === sz ? 'var(--accent-glow)' : 'transparent',
-                                color: fontSize === sz ? 'var(--accent)' : 'var(--text-primary)',
-                                fontSize: 11,
-                                fontWeight: 700,
-                                cursor: 'pointer',
-                              }}
-                            >
-                              {sz}px
-                            </button>
-                          ))}
+                <input
+                  value={title}
+                  onChange={e => handleTitleChange(e.target.value)}
+                  style={{
+                    background: 'transparent', border: 'none', outline: 'none',
+                    fontSize: 16, fontWeight: 700, color: 'var(--text-primary)',
+                    flex: 1, fontFamily: 'Inter, sans-serif', minWidth: 0, width: '100%',
+                  }}
+                  placeholder="Tytuł rozdziału..."
+                />
+              </div>
+
+              {/* Dolny wiersz: Narzędzia i Statystyki */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingTop: 2, borderTop: '1px rgba(255,255,255,0.05) solid' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Hash size={11} /> {wordCount} słów
+                  </span>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <AlignJustify size={11} /> {charCount} znaków
+                  </span>
+                  <span style={{ fontSize: 10, color: saved ? '#22c55e' : '#f59e0b', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <span>{saved ? '✓' : '●'}</span><span>{saved ? 'Zapisano' : 'Zapisywanie...'}</span>
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, position: 'relative' }}>
+                  {/* Przycisk menu typografii */}
+                  <button
+                    type="button"
+                    onClick={() => setShowFontMenu(v => !v)}
+                    className={`btn-icon ${showFontMenu ? 'btn-primary' : 'btn-ghost'}`}
+                    title="Ustawienia typografii i tekstu"
+                    style={{ padding: '3px 8px', display: 'flex', alignItems: 'center', gap: 4, height: 26, fontSize: 11, borderRadius: 6 }}
+                  >
+                    <Type size={13} />
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>{fontSize}px</span>
+                  </button>
+
+                  {/* Popover Menu Typografii */}
+                  {showFontMenu && (
+                    <>
+                      <div
+                        style={{ position: 'fixed', inset: 0, zIndex: 90 }}
+                        onClick={() => setShowFontMenu(false)}
+                      />
+                      <div className="fade-in" style={{
+                        position: 'absolute',
+                        top: 32,
+                        right: 0,
+                        zIndex: 100,
+                        background: 'var(--bg-card)',
+                        border: '1px solid var(--border)',
+                        borderRadius: 10,
+                        padding: 12,
+                        width: 220,
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 12,
+                      }}>
+                        <div>
+                          <span style={{ fontSize: 10.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>
+                            Rozmiar czcionki
+                          </span>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4 }}>
+                            {[13, 15, 17, 20].map(sz => (
+                              <button
+                                key={sz}
+                                onClick={() => setFontSize(sz)}
+                                style={{
+                                  padding: '4px 0',
+                                  borderRadius: 6,
+                                  border: '1px solid',
+                                  borderColor: fontSize === sz ? 'var(--accent)' : 'var(--border)',
+                                  background: fontSize === sz ? 'var(--accent-glow)' : 'transparent',
+                                  color: fontSize === sz ? 'var(--accent)' : 'var(--text-primary)',
+                                  fontSize: 11,
+                                  fontWeight: 700,
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                {sz}px
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div style={{ borderTop: '1px solid var(--border)', paddingTop: 10 }}>
+                          <span style={{ fontSize: 10.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>
+                            Krój pisma
+                          </span>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            {[
+                              { id: 'Merriweather, serif', name: 'Książkowa (Serif)', sample: 'Aa' },
+                              { id: 'Inter, sans-serif', name: 'Nowoczesna (Sans)', sample: 'Aa' },
+                              { id: 'Courier New, monospace', name: 'Maszynopis (Mono)', sample: 'Aa' },
+                            ].map(f => (
+                              <button
+                                key={f.id}
+                                onClick={() => setFontFamily(f.id)}
+                                style={{
+                                  padding: '6px 8px',
+                                  borderRadius: 6,
+                                  border: '1px solid',
+                                  borderColor: fontFamily === f.id ? 'var(--accent)' : 'transparent',
+                                  background: fontFamily === f.id ? 'var(--accent-glow)' : 'transparent',
+                                  color: fontFamily === f.id ? 'var(--accent)' : 'var(--text-primary)',
+                                  fontSize: 12,
+                                  textAlign: 'left',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  cursor: 'pointer',
+                                  fontFamily: f.id,
+                                }}
+                              >
+                                <span>{f.name}</span>
+                                <span style={{ fontSize: 11, opacity: 0.6 }}>{f.sample}</span>
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       </div>
+                    </>
+                  )}
 
-                      <div style={{ borderTop: '1px solid var(--border)', paddingTop: 10 }}>
-                        <span style={{ fontSize: 10.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>
-                          Krój pisma
-                        </span>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                          {[
-                            { id: 'Merriweather, serif', name: 'Książkowa (Serif)', sample: 'Aa' },
-                            { id: 'Inter, sans-serif', name: 'Nowoczesna (Sans)', sample: 'Aa' },
-                            { id: 'Courier New, monospace', name: 'Maszynopis (Mono)', sample: 'Aa' },
-                          ].map(f => (
-                            <button
-                              key={f.id}
-                              onClick={() => setFontFamily(f.id)}
-                              style={{
-                                padding: '6px 8px',
-                                borderRadius: 6,
-                                border: '1px solid',
-                                borderColor: fontFamily === f.id ? 'var(--accent)' : 'transparent',
-                                background: fontFamily === f.id ? 'var(--accent-glow)' : 'transparent',
-                                color: fontFamily === f.id ? 'var(--accent)' : 'var(--text-primary)',
-                                fontSize: 12,
-                                textAlign: 'left',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                cursor: 'pointer',
-                                fontFamily: f.id,
-                              }}
-                            >
-                              <span>{f.name}</span>
-                              <span style={{ fontSize: 11, opacity: 0.6 }}>{f.sample}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
+                  {/* Przycisk Trybu Skupienia */}
+                  <button
+                    type="button"
+                    onClick={() => setIsFocusMode(v => !v)}
+                    className={`btn-icon ${isFocusMode ? 'btn-primary' : 'btn-ghost'}`}
+                    title={isFocusMode ? "Wyłącz tryb skupienia" : "Włącz tryb skupienia (Bez rozpraszaczy)"}
+                    style={{ padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', height: 26, width: 26 }}
+                  >
+                    {isFocusMode ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+                  </button>
 
-                {/* Przycisk Trybu Skupienia */}
-                <button
-                  type="button"
-                  onClick={() => setIsFocusMode(v => !v)}
-                  className={`btn-icon ${isFocusMode ? 'btn-primary' : 'btn-ghost'}`}
-                  title={isFocusMode ? "Wyłącz tryb skupienia" : "Włącz tryb skupienia (Bez rozpraszaczy)"}
-                  style={{ padding: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                >
-                  {isFocusMode ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
-                </button>
-
-                <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap' }}>
-                  <Hash size={11} /> {wordCount}<span className="editor-stats-text"> słów</span>
-                </span>
-                <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap' }}>
-                  <AlignJustify size={11} /> {charCount}<span className="editor-stats-text"> znaków</span>
-                </span>
-                <span style={{ fontSize: 10, color: saved ? '#22c55e' : '#f59e0b', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap' }}>
-                  <span>{saved ? '✓' : '●'}</span><span className="editor-stats-text">{saved ? 'Zapisano' : 'Zapisywanie...'}</span>
-                </span>
-                <button
-                  onClick={() => deleteChapter.mutate(selected.id)}
-                  className="btn-icon btn-ghost"
-                  title="Usuń rozdział"
-                  style={{ color: '#ef4444', padding: 4 }}
-                >
-                  <Trash2 size={14} />
-                </button>
+                  <button
+                    onClick={() => deleteChapter.mutate(selected.id)}
+                    className="btn-icon btn-ghost"
+                    title="Usuń rozdział"
+                    style={{ color: '#ef4444', padding: 4, height: 26, width: 26, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
               </div>
             </div>
 
