@@ -28,8 +28,25 @@ export default function Editor() {
   const [title, setTitle] = useState('')
   const [wordCount, setWordCount] = useState(0)
   const [charCount, setCharCount] = useState(0)
+  const [fontSize, setFontSize] = useState<number>(() => {
+    const saved = localStorage.getItem('sk-editor-font-size')
+    return saved ? Number(saved) : 15
+  })
+  const [fontFamily, setFontFamily] = useState<string>(() => {
+    const saved = localStorage.getItem('sk-editor-font-family')
+    return saved || 'Merriweather, serif'
+  })
+
   const [saved, setSaved] = useState(true)
   const editorRef = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    localStorage.setItem('sk-editor-font-size', fontSize.toString())
+  }, [fontSize])
+
+  useEffect(() => {
+    localStorage.setItem('sk-editor-font-family', fontFamily)
+  }, [fontFamily])
 
   const { data: chapters = [] } = useQuery({
     queryKey: ['chapters', currentProject?.id],
@@ -241,6 +258,33 @@ p { text-indent: 1.5em; margin: 0; }
                 placeholder="Tytuł rozdziału..."
               />
               <div className="editor-stats-container" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                {/* Rozmiar czcionki */}
+                <select
+                  value={fontSize}
+                  onChange={e => setFontSize(Number(e.target.value))}
+                  className="select"
+                  style={{ width: 'auto', height: 26, fontSize: 11, padding: '2px 20px 2px 6px', borderRadius: 6 }}
+                  title="Rozmiar czcionki"
+                >
+                  <option value={13}>Mała (13px)</option>
+                  <option value={15}>Domyślna (15px)</option>
+                  <option value={17}>Duża (17px)</option>
+                  <option value={20}>Bardzo duża (20px)</option>
+                </select>
+
+                {/* Krój czcionki */}
+                <select
+                  value={fontFamily}
+                  onChange={e => setFontFamily(e.target.value)}
+                  className="select"
+                  style={{ width: 'auto', height: 26, fontSize: 11, padding: '2px 20px 2px 6px', borderRadius: 6 }}
+                  title="Krój czcionki"
+                >
+                  <option value="Merriweather, serif">Szeryfowa (Książkowa)</option>
+                  <option value="Inter, sans-serif">Bezszeryfowa (Nowoczesna)</option>
+                  <option value="Courier New, monospace">Maszynopis (Monospace)</option>
+                </select>
+
                 <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
                   <Hash size={11} /> {wordCount}<span className="editor-stats-text"> słów</span>
                 </span>
@@ -262,14 +306,21 @@ p { text-indent: 1.5em; margin: 0; }
             </div>
 
             {/* Edytor */}
-            <div style={{ flex: 1, overflow: 'auto', background: 'var(--editor-bg)' }}>
+            <div style={{ flex: 1, overflow: 'auto', background: 'var(--editor-bg)', padding: '20px 10px' }}>
               <textarea
                 ref={editorRef}
                 className="manuscript-editor"
                 value={content}
                 onChange={handleContentChange}
                 placeholder="Zacznij pisać... Hypheny ( - ) będą automatycznie zamieniane na półpauzy."
-                style={{ display: 'block', minHeight: '100%', resize: 'none', border: 'none' }}
+                style={{
+                  display: 'block',
+                  minHeight: '100%',
+                  resize: 'none',
+                  border: 'none',
+                  fontSize: `${fontSize}px`,
+                  fontFamily: fontFamily,
+                }}
               />
             </div>
           </>

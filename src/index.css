@@ -341,16 +341,18 @@ body {
    ============================================================ */
 .manuscript-editor {
   font-family: 'Merriweather', Georgia, serif;
-  font-size: 12pt;
-  line-height: 1.8;
-  text-align: justify;
+  font-size: 15px;
+  line-height: 1.65;
+  text-align: left;
   color: var(--text-primary);
   background: var(--editor-bg);
   caret-color: var(--accent);
   outline: none;
-  padding: 48px 60px;
+  padding: 36px 44px;
   min-height: 100%;
   width: 100%;
+  max-width: 850px;
+  margin: 0 auto;
 }
 
 .manuscript-editor p { text-indent: 1.5em; margin-bottom: 0; }
