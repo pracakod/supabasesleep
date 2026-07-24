@@ -107,9 +107,16 @@ export default function ProfilePage() {
             <div style={{ background: 'var(--bg-secondary)', padding: 14, borderRadius: 8, border: '1px solid var(--border)' }}>
               <span style={{ fontSize: 11.5, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 600 }}>Status konta</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
-                <Award size={18} style={{ color: profile.status === 'premium' ? '#f59e0b' : 'var(--text-secondary)' }} />
+                <Award size={18} style={{
+                  color: profile.status === 'pro' ? '#ec4899'
+                    : profile.status === 'basic' || profile.status === 'premium' ? '#3b82f6'
+                    : 'var(--text-secondary)'
+                }} />
                 <span style={{ fontSize: 14, fontWeight: 700 }}>
-                  {profile.status === 'premium' ? 'Premium' : 'Darmowe'}
+                  {profile.status === 'pro' ? '🚀 Pro'
+                    : profile.status === 'basic' ? '⭐ Podstawowa'
+                    : profile.status === 'premium' ? '⭐ Premium'
+                    : '🆓 Darmowe'}
                 </span>
               </div>
             </div>

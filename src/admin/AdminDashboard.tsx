@@ -59,7 +59,7 @@ export default function AdminDashboard() {
       }
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin_profiles'] })
+      qc.invalidateQueries()
     },
     onError: (err: any) => {
       console.error('[Admin] Błąd:', err)
