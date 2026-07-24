@@ -6,16 +6,12 @@ import { Shield, Users, BookOpen, FileText, Star, Ban, Unlock, LogOut, Trash2 } 
 export default function AdminDashboard() {
   const qc = useQueryClient()
 
-  // Sprawdź autoryzację admina
   const isAdmin = localStorage.getItem('admin_session') === 'true'
-  if (!isAdmin) {
-    window.location.href = '/admin-login'
-    return null
-  }
 
   // Pobierz profile użytkowników
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['admin_profiles'],
+    enabled: isAdmin,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
@@ -29,6 +25,7 @@ export default function AdminDashboard() {
   // Pobierz statystyki (liczba projektów)
   const { data: stats } = useQuery({
     queryKey: ['admin_stats'],
+    enabled: isAdmin,
     queryFn: async () => {
       // Pobieramy z widoku admin_stats
       const { data, error } = await supabase
@@ -86,6 +83,11 @@ export default function AdminDashboard() {
   // Obliczenia statystyk z pobranych profili (jako backup)
   const totalWords = users.reduce((acc, u) => acc + (u.total_words || 0), 0)
   const premiumUsersCount = users.filter(u => u.status === 'premium').length
+
+  if (!isAdmin) {
+    window.location.href = '/admin-login'
+    return null
+  }
 
   return (
     <div style={{
