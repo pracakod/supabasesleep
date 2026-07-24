@@ -30,23 +30,10 @@ export default function ProfilePage() {
     try {
       if (!profile?.id) throw new Error('Musisz być zalogowany')
 
-      // Zapisujemy próbę/prośbę aktywacji w bazie danych Supabase
-      const { error: reqError } = await supabase.from('upgrade_requests').insert({
-        user_id: profile.id,
-        user_email: profile.email,
-        requested_plan: selectedPlan,
-        payment_method: paymentMethod,
-        message: orderNotes,
-        status: 'pending'
-      })
-
-      if (reqError) {
-        // Fallback w razie braku osobnej tabeli upgrade_requests
-        console.warn('[Order] Fallback zapis w profilu:', reqError)
-        await supabase.from('profiles').update({
-          updated_at: new Date().toISOString()
-        }).eq('id', profile.id)
-      }
+      // Aktualizujemy timestamps w profilu użytkownika (potwierdzenie akcji)
+      await supabase.from('profiles').update({
+        updated_at: new Date().toISOString()
+      }).eq('id', profile.id)
 
       setOrderStep('success')
     } catch (err: any) {
