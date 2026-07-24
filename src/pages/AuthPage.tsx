@@ -51,7 +51,7 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
       else setMessage({ type: 'success', text: 'Sprawdź pocztę i aktywuj swoje konto autora.' })
     } else if (mode === 'reset') {
       const { error } = await resetPassword(email)
-      if (error) setMessage({ type: 'error', text: 'Nie udało się wysłać emaila.' })
+      if (error) setMessage({ type: 'error', text: 'Błąd: ' + error.message })
       else setMessage({ type: 'success', text: 'Link do resetowania hasła wysłany na Twoją skrzynkę.' })
     } else if (mode === 'update-password') {
       if (password !== confirmPassword) {
