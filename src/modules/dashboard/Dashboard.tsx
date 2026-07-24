@@ -61,18 +61,19 @@ export default function Dashboard() {
     enabled: !!profile?.id,
   })
 
-  // Po wczytaniu listy projektów upewnij się, że wybieramy zapisany projekt z localStorage
+  // Po wczytaniu listy projektów wybierz właściwy projekt (bez przeskakiwania)
   useEffect(() => {
     if (projects.length > 0) {
+      const savedId = localStorage.getItem('sk-last-project-id')
       if (!currentProject) {
-        const savedId = localStorage.getItem('sk-last-project-id')
         const found = projects.find(p => p.id === savedId)
         setCurrentProject(found || projects[0])
       } else {
-        // Zaktualizuj dane w tle
-        const updated = projects.find(p => p.id === currentProject.id)
-        if (updated && JSON.stringify(updated) !== JSON.stringify(currentProject)) {
-          setCurrentProject(updated)
+        // Jeśli zarejestrowano projekt w stanie, upewnij się czy nadal istnieje na liście
+        const exists = projects.some(p => p.id === currentProject.id)
+        if (!exists) {
+          const found = projects.find(p => p.id === savedId)
+          setCurrentProject(found || projects[0])
         }
       }
     }
