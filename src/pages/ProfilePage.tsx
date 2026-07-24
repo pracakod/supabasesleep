@@ -133,7 +133,7 @@ export default function ProfilePage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
                 <Award size={18} style={{ color: profile.status === 'premium' ? '#f59e0b' : 'var(--text-secondary)' }} />
                 <span style={{ fontSize: 14, fontWeight: 700 }}>
-                  {profile.status === 'premium' ? ' ⭐ Premium' : ' 🆓 Darmowe'}
+                  {profile.status === 'premium' ? 'Premium' : 'Darmowe'}
                 </span>
               </div>
             </div>

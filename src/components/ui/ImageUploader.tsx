@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { Camera, Upload, Loader2 } from 'lucide-react'
+import { Camera, Upload, X, Loader2 } from 'lucide-react'
 import { compressImage, uploadToSupabase } from '../../hooks/useImageCompress'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
@@ -105,8 +105,15 @@ export default function ImageUploader({
         />
       </div>
 
-
-
+      {currentUrl && (
+        <button
+          onClick={e => { e.stopPropagation(); onUpload('') }}
+          className="btn btn-ghost btn-sm"
+          style={{ marginTop: 6, fontSize: 11 }}
+        >
+          <X size={11} /> Usuń
+        </button>
+      )}
 
       <style>{`
         .img-hover-overlay { opacity: 0; transition: opacity 0.2s; }
