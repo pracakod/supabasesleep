@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import WordProgressBar from '../../components/ui/WordProgressBar'
 import { useDebounce } from '../../hooks/useDebounce'
 import { uploadToSupabase } from '../../hooks/useImageCompress'
+import { useNotification } from '../../contexts/NotificationContext'
 import type { Project } from '../../types/database.types'
 import {
   Plus, Download, BookOpen, Target,
@@ -15,6 +16,7 @@ import {
 export default function Dashboard() {
   const { profile, updateProfile } = useAuth()
   const { currentProject, setCurrentProject } = useProject()
+  const { addLog } = useNotification()
   const qc = useQueryClient()
 
   const [pseudonym, setPseudonym] = useState(profile?.pseudonym || 'D. K.')
@@ -91,7 +93,7 @@ export default function Dashboard() {
       return data as Project
     },
     onSuccess: (data) => {
-      console.log('[Dashboard] Sukces! Przełączam na nowy projekt:', data)
+      addLog(`Utworzono nowy projekt: "${data.title}"`, 'info')
       qc.invalidateQueries({ queryKey: ['projects'] })
       setCurrentProject(data)
       setEditingProject(false)
@@ -99,7 +101,7 @@ export default function Dashboard() {
       setProjectForm({ title: '', subtitle: '', genre: '', target_words: 80000 })
     },
     onError: (err: any) => {
-      console.error('[Dashboard] Błąd w createProject mutation:', err)
+      addLog(`Błąd tworzenia projektu: ${err.message}`, 'error')
       setErrorMsg(err.message || 'Wystąpił nieoczekiwany błąd podczas tworzenia projektu.')
     }
   })
@@ -107,10 +109,12 @@ export default function Dashboard() {
   const deleteProject = useMutation({
     mutationFn: async () => {
       if (!currentProject) return
+      addLog(`Rozpoczęto usuwanie projektu "${currentProject.title}" (ID: ${currentProject.id})`, 'warn')
       const { error } = await supabase.from('projects').delete().eq('id', currentProject.id)
       if (error) throw error
     },
     onSuccess: () => {
+      addLog(`Pomyślnie usunięto projekt`, 'info')
       qc.invalidateQueries({ queryKey: ['projects'] })
       const remaining = projects.filter(p => p.id !== currentProject?.id)
       setCurrentProject(remaining.length > 0 ? remaining[0] : null)
@@ -118,6 +122,7 @@ export default function Dashboard() {
       setDeleteConfirmInput('')
     },
     onError: (err: any) => {
+      addLog(`Błąd usuwania projektu: ${err.message}`, 'error')
       alert('Błąd podczas usuwania projektu: ' + err.message)
     }
   })
@@ -125,6 +130,7 @@ export default function Dashboard() {
   // Upload okładki
   const updateCover = async (url: string) => {
     if (!currentProject) return
+    addLog(`Zaktualizowano okładkę dla projektu "${currentProject.title}"`, 'info')
     await supabase.from('projects').update({ cover_url: url }).eq('id', currentProject.id)
     setCurrentProject({ ...currentProject, cover_url: url })
     qc.invalidateQueries({ queryKey: ['projects'] })
@@ -300,12 +306,12 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Akcje */}
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <button onClick={downloadBackup} className="btn btn-ghost">
+            {/* Akcje - Wyśrodkowane */}
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', width: '100%', marginTop: 8 }}>
+              <button onClick={() => { addLog('Rozpoczęto eksport kopii zapasowej projektu (.json)', 'info'); downloadBackup(); }} className="btn btn-ghost">
                 <Download size={14} /> Backup (.json)
               </button>
-              <button onClick={() => { setShowDeleteModal(true); setDeleteConfirmInput(''); }} className="btn btn-ghost" style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
+              <button onClick={() => { addLog('Otwarto okno potwierdzenia usunięcia projektu', 'warn'); setShowDeleteModal(true); setDeleteConfirmInput(''); }} className="btn btn-ghost" style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
                 <Trash2 size={14} /> Usuń projekt
               </button>
             </div>
