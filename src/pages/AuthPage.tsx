@@ -52,19 +52,15 @@ export default function AuthPage() {
     <div style={{
       minHeight: '100dvh',
       width: '100%',
-      background: '#090d16',
-      backgroundImage: `
-        radial-gradient(at 0% 0%, rgba(30, 41, 59, 0.7) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(15, 23, 42, 0.9) 0px, transparent 50%),
-        radial-gradient(at 50% 50%, rgba(99, 102, 241, 0.05) 0px, transparent 60%)
-      `,
+      background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e1b4b 100%)',
       display: 'flex',
+      flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
       padding: '24px 16px',
       paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 20px))',
       fontFamily: 'Inter, system-ui, sans-serif',
-      color: '#e2e8f0',
+      color: '#f8fafc',
       position: 'relative',
       overflowY: 'auto',
     }}>
@@ -313,17 +309,65 @@ export default function AuthPage() {
           )}
 
           {mode === 'reset' && (
-            <button
-              onClick={() => { setMode('login'); setMessage(null) }}
-              style={{
-                marginTop: 18, background: 'none', border: 'none',
-                color: '#818cf8', fontSize: 12.5, cursor: 'pointer',
-                display: 'block', width: '100%', textAlign: 'center',
-              }}
-            >
-              ← Wróć do logowania
-            </button>
-          )}
+          <button
+            onClick={() => { setMode('login'); setMessage(null) }}
+            style={{
+              marginTop: 18, background: 'none', border: 'none',
+              color: '#818cf8', fontSize: 12.5, cursor: 'pointer',
+              display: 'block', width: '100%', textAlign: 'center',
+            }}
+          >
+            ← Wróć do logowania
+          </button>
+        )}
+      </div>
+
+      {/* Dół strony: Piękny cytat literacki + Wersja i Autor */}
+      <div style={{
+        marginTop: 20,
+        textAlign: 'center',
+        maxWidth: 400,
+        zIndex: 10,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 12,
+      }}>
+        {/* Piękny cytat */}
+        <div style={{
+          padding: '12px 18px',
+          background: 'rgba(15, 23, 42, 0.5)',
+          borderRadius: 14,
+          border: '1px solid rgba(255, 255, 255, 0.06)',
+          backdropFilter: 'blur(6px)',
+        }}>
+          <p style={{
+            fontFamily: 'Merriweather, serif',
+            fontSize: 12.5,
+            fontStyle: 'italic',
+            color: '#94a3b8',
+            lineHeight: 1.5,
+            margin: 0,
+          }}>
+            „Nie ma większej udręki niż noszenie w sobie nienapisanej historii.”
+          </p>
+          <span style={{ display: 'block', marginTop: 4, fontSize: 11, color: '#64748b', fontWeight: 500 }}>
+            — Maya Angelou
+          </span>
+        </div>
+
+        {/* Wersja projektu i Autor */}
+        <div style={{
+          fontSize: 11,
+          color: '#475569',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+        }}>
+          <span>Studio Książki v1.0.0</span>
+          <span>•</span>
+          <span>Dla Pisarzy i Twórców</span>
+        </div>
       </div>
 
       {/* Modal z Regulaminem i Polityką Prywatności */}
