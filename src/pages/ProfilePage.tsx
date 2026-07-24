@@ -239,7 +239,7 @@ export default function ProfilePage() {
                   <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>🆓 Darmowy</h3>
                   <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--accent)', marginTop: 4 }}>0 zł <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-muted)' }}>/ mc</span></div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--text-secondary)', flex: 1 }}>
                   <div>📚 <strong>2</strong> projekty książek</div>
                   <div>📝 <strong>10</strong> rozdziałów / projekt</div>
                   <div>👥 <strong>10</strong> postaci</div>
@@ -247,6 +247,13 @@ export default function ProfilePage() {
                   <div>⏳ <strong>10</strong> wydarzeń osi czasu</div>
                   <div>🗂️ <strong>15</strong> kart na tablicy</div>
                 </div>
+                <button
+                  disabled
+                  className="btn btn-ghost btn-sm"
+                  style={{ width: '100%', opacity: 0.6, fontSize: 12, marginTop: 8 }}
+                >
+                  {profile.status === 'free' ? 'Aktualny plan' : 'Darmowy'}
+                </button>
               </div>
 
               {/* Plan Podstawowy */}
@@ -267,7 +274,7 @@ export default function ProfilePage() {
                   <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>⭐ Podstawowy</h3>
                   <div style={{ fontSize: 20, fontWeight: 800, color: '#3b82f6', marginTop: 4 }}>9 zł <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-muted)' }}>/ mc</span></div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--text-secondary)', flex: 1 }}>
                   <div>📚 <strong>5</strong> projektów książek</div>
                   <div>📝 <strong>30</strong> rozdziałów / projekt</div>
                   <div>👥 <strong>30</strong> postaci</div>
@@ -275,6 +282,19 @@ export default function ProfilePage() {
                   <div>⏳ <strong>50</strong> wydarzeń osi czasu</div>
                   <div>🗂️ <strong>50</strong> kart na tablicy</div>
                 </div>
+                {profile.status === 'basic' || profile.status === 'premium' ? (
+                  <button disabled className="btn btn-ghost btn-sm" style={{ width: '100%', opacity: 0.7, color: '#3b82f6', borderColor: '#3b82f6', fontSize: 12, marginTop: 8 }}>
+                    Aktualny plan
+                  </button>
+                ) : (
+                  <a
+                    href={`mailto:kontakt@studioksiazki.pl?subject=Zamowienie%20planu%20Podstawowy%20-%20${encodeURIComponent(profile.email || '')}`}
+                    className="btn btn-sm"
+                    style={{ width: '100%', background: '#3b82f6', color: '#fff', fontSize: 12, marginTop: 8, justifyContent: 'center', textDecoration: 'none' }}
+                  >
+                    Zamów plan Podstawowy
+                  </a>
+                )}
               </div>
 
               {/* Plan Pro */}
@@ -295,7 +315,7 @@ export default function ProfilePage() {
                   <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>🚀 Pro</h3>
                   <div style={{ fontSize: 20, fontWeight: 800, color: '#ec4899', marginTop: 4 }}>19 zł <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-muted)' }}>/ mc</span></div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--text-secondary)', flex: 1 }}>
                   <div>📚 <strong>20</strong> projektów książek</div>
                   <div>📝 <strong>100</strong> rozdziałów / projekt</div>
                   <div>👥 <strong>100</strong> postaci</div>
@@ -303,11 +323,24 @@ export default function ProfilePage() {
                   <div>⏳ <strong>Bez limitu</strong> osi czasu</div>
                   <div>🗂️ <strong>Bez limitu</strong> kart na tablicy</div>
                 </div>
+                {profile.status === 'pro' ? (
+                  <button disabled className="btn btn-ghost btn-sm" style={{ width: '100%', opacity: 0.7, color: '#ec4899', borderColor: '#ec4899', fontSize: 12, marginTop: 8 }}>
+                    Aktualny plan
+                  </button>
+                ) : (
+                  <a
+                    href={`mailto:kontakt@studioksiazki.pl?subject=Zamowienie%20planu%20Pro%20-%20${encodeURIComponent(profile.email || '')}`}
+                    className="btn btn-sm"
+                    style={{ width: '100%', background: '#ec4899', color: '#fff', fontSize: 12, marginTop: 8, justifyContent: 'center', textDecoration: 'none' }}
+                  >
+                    Zamów plan Pro
+                  </a>
+                )}
               </div>
             </div>
 
-            <div style={{ marginTop: 20, textAlign: 'center', paddingTop: 16, borderTop: '1px solid var(--border)', fontSize: 12, color: 'var(--text-muted)' }}>
-              Chcesz zmienić swój plan subskrypcji? Skontaktuj się z administratorem lub zaloguj się w panelu rozliczeniowym.
+            <div style={{ marginTop: 20, textAlign: 'center', paddingTop: 16, borderTop: '1px solid var(--border)', fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>
+              Aby kupić lub zmienić plan subskrypcji, kliknij <strong>„Zamów plan”</strong> powyżej (otworzy wiadomość e-mail do administratora) lub napisz na: <strong style={{ color: 'var(--text-primary)' }}>kontakt@studioksiazki.pl</strong>. Aktywacja następuje niezwłocznie po zaksięgowaniu płatności.
             </div>
           </div>
         </div>
