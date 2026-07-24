@@ -1,0 +1,35 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    # Uruchamiaj co 3 dni o godzinie 04:00 UTC (nie obciąża limitów GitHub ani Supabase)
+    - cron: '0 4 */3 * *'
+  workflow_dispatch: # Umożliwia również ręczne uruchomienie przyciskiem w panelu GitHub Actions
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          URL="${{ secrets.SUPABASE_URL }}"
+          KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+          
+          # Użycie zmiennych z Secrets lub domyślnych z projektu
+          if [ -z "$URL" ]; then
+            URL="https://nljhnrsyxgqovumrrqzg.supabase.co"
+          fi
+          
+          if [ -z "$KEY" ]; then
+            KEY="sb_publishable_uGX3oKsDuz6N15B6RwWxnw_EV__kaL3"
+          fi
+
+          echo "Pinging Supabase at $URL..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X GET "$URL/rest/v1/" -H "apikey: $KEY")
+          
+          echo "Response code: $RESPONSE"
+          if [ "$RESPONSE" -ge 200 ] && [ "$RESPONSE" -lt 500 ]; then
+            echo "Supabase jest aktywny!"
+          else
+            echo "Warning: Otrzymano kod statusu $RESPONSE"
+          fi
