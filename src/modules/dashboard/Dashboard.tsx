@@ -169,7 +169,7 @@ export default function Dashboard() {
       {proj ? (
         <div className="dashboard-layout">
           {/* LEWA: Okładka */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, width: '100%' }}>
             {/* Okładka książki */}
             <div className="book-cover" style={{ position: 'relative' }}>
               {proj.cover_url && (
