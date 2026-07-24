@@ -265,7 +265,7 @@ p { text-indent: 1.5em; margin: 0; }
                   onChange={e => handleTitleChange(e.target.value)}
                   style={{
                     background: 'transparent', border: 'none', outline: 'none',
-                    fontSize: 16, fontWeight: 700, color: 'var(--text-primary)',
+                    fontSize: 14, fontWeight: 600, color: 'var(--text-primary)',
                     flex: 1, fontFamily: 'Inter, sans-serif', minWidth: 0, width: '100%',
                   }}
                   placeholder="Tytuł rozdziału..."
