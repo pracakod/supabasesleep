@@ -50,18 +50,20 @@ export default function AuthPage() {
 
   return (
     <div style={{
-      minHeight: '100vh',
-      background: 'radial-gradient(circle at 50% 0%, #171d2b 0%, #0a0c12 100%)',
+      minHeight: '100dvh', // Zapewnia prawidłową wysokość na mobilnym Safari/Chrome bez zasłaniania paska
+      width: '100%',
+      background: 'radial-gradient(circle at 50% 0%, #15172b 0%, #090a14 100%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '24px',
+      padding: '24px 16px',
+      paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 20px))', // Dodatkowy odstęp na dolny pasek telefonu
       fontFamily: 'Inter, system-ui, sans-serif',
       color: '#e2e8f0',
       position: 'relative',
-      overflow: 'hidden',
+      overflowY: 'auto',
     }}>
-      {/* Dynamiczne rozświetlenia w tle */}
+      {/* Dynamiczne rozświetlenia w tle (Indygo/Fiolet) */}
       <div style={{
         position: 'absolute',
         top: '-150px',
@@ -69,7 +71,7 @@ export default function AuthPage() {
         transform: 'translateX(-50%)',
         width: '600px',
         height: '600px',
-        background: 'radial-gradient(circle, rgba(234, 179, 8, 0.08) 0%, rgba(245, 158, 11, 0) 70%)',
+        background: 'radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(79, 70, 229, 0) 70%)',
         filter: 'blur(80px)',
         pointerEvents: 'none',
       }} />
@@ -77,10 +79,10 @@ export default function AuthPage() {
       <div style={{
         position: 'absolute',
         bottom: '-200px',
-        right: '10%',
+        left: '10%',
         width: '500px',
         height: '500px',
-        background: 'radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, rgba(0, 0, 0, 0) 70%)',
+        background: 'radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, rgba(0, 0, 0, 0) 70%)',
         filter: 'blur(100px)',
         pointerEvents: 'none',
       }} />
@@ -90,23 +92,24 @@ export default function AuthPage() {
         maxWidth: 420,
         position: 'relative',
         zIndex: 10,
-        background: 'rgba(18, 24, 38, 0.75)',
+        background: 'rgba(19, 22, 38, 0.8)',
         backdropFilter: 'blur(16px)',
         border: '1px solid rgba(255, 255, 255, 0.08)',
         borderRadius: 24,
-        padding: '36px 32px',
+        padding: '36px 28px',
         boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+        margin: 'auto 0', // Środkowanie z zachowaniem przewijania
       }}>
         {/* Logo i Nagłówek */}
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div style={{
             width: 58, height: 58,
-            background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+            background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
             borderRadius: 16, margin: '0 auto 16px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 8px 24px rgba(245, 158, 11, 0.25)',
+            boxShadow: '0 8px 24px rgba(99, 102, 241, 0.3)',
           }}>
-            <BookOpen size={28} color="#0d1117" strokeWidth={2.5} />
+            <BookOpen size={28} color="#ffffff" strokeWidth={2.2} />
           </div>
 
           <h1 style={{
@@ -128,22 +131,22 @@ export default function AuthPage() {
         {mode !== 'reset' && (
           <div style={{
             display: 'flex',
-            background: 'rgba(10, 14, 23, 0.6)',
+            background: 'rgba(10, 12, 22, 0.7)',
             borderRadius: 12,
             padding: 4,
             marginBottom: 24,
-            border: '1px solid rgba(255, 255, 255, 0.04)',
+            border: '1px solid rgba(255, 255, 255, 0.05)',
           }}>
             {(['login', 'register'] as Mode[]).map(m => (
               <button key={m} onClick={() => { setMode(m); setMessage(null) }}
                 style={{
                   flex: 1, padding: '9px 12px', borderRadius: 9,
-                  background: mode === m ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03))' : 'transparent',
-                  border: mode === m ? '1px solid rgba(255, 255, 255, 0.12)' : 'none',
-                  color: mode === m ? '#f8fafc' : '#64748b',
+                  background: mode === m ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(79, 70, 229, 0.15))' : 'transparent',
+                  border: mode === m ? '1px solid rgba(99, 102, 241, 0.4)' : 'none',
+                  color: mode === m ? '#ffffff' : '#64748b',
                   fontWeight: mode === m ? 600 : 500,
                   fontSize: 13.5, cursor: 'pointer', transition: 'all 0.2s ease',
-                  boxShadow: mode === m ? '0 4px 12px rgba(0,0,0,0.2)' : 'none',
+                  boxShadow: mode === m ? '0 4px 12px rgba(99, 102, 241, 0.15)' : 'none',
                 }}
               >
                 {m === 'login' ? 'Logowanie' : 'Rejestracja'}
@@ -168,7 +171,7 @@ export default function AuthPage() {
                   width: '100%',
                   padding: '11px 14px',
                   borderRadius: 10,
-                  background: 'rgba(10, 14, 23, 0.7)',
+                  background: 'rgba(10, 12, 22, 0.7)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   color: '#f8fafc',
                   fontSize: 14,
@@ -192,7 +195,7 @@ export default function AuthPage() {
                 width: '100%',
                 padding: '11px 14px',
                 borderRadius: 10,
-                background: 'rgba(10, 14, 23, 0.7)',
+                background: 'rgba(10, 12, 22, 0.7)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 color: '#f8fafc',
                 fontSize: 14,
@@ -217,7 +220,7 @@ export default function AuthPage() {
                     width: '100%',
                     padding: '11px 40px 11px 14px',
                     borderRadius: 10,
-                    background: 'rgba(10, 14, 23, 0.7)',
+                    background: 'rgba(10, 12, 22, 0.7)',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     color: '#f8fafc',
                     fontSize: 14,
@@ -246,14 +249,14 @@ export default function AuthPage() {
                   type="checkbox"
                   checked={termsAccepted}
                   onChange={e => setTermsAccepted(e.target.checked)}
-                  style={{ marginTop: 3, accentColor: '#f59e0b', cursor: 'pointer', width: 15, height: 15 }}
+                  style={{ marginTop: 3, accentColor: '#6366f1', cursor: 'pointer', width: 15, height: 15 }}
                 />
                 <span>
                   Akceptuję{' '}
                   <button
                     type="button"
                     onClick={() => setShowTermsModal('terms')}
-                    style={{ background: 'none', border: 'none', color: '#fbbf24', textDecoration: 'underline', padding: 0, cursor: 'pointer', fontSize: 12.5, fontWeight: 500 }}
+                    style={{ background: 'none', border: 'none', color: '#818cf8', textDecoration: 'underline', padding: 0, cursor: 'pointer', fontSize: 12.5, fontWeight: 500 }}
                   >
                     Regulamin
                   </button>
@@ -261,7 +264,7 @@ export default function AuthPage() {
                   <button
                     type="button"
                     onClick={() => setShowTermsModal('privacy')}
-                    style={{ background: 'none', border: 'none', color: '#fbbf24', textDecoration: 'underline', padding: 0, cursor: 'pointer', fontSize: 12.5, fontWeight: 500 }}
+                    style={{ background: 'none', border: 'none', color: '#818cf8', textDecoration: 'underline', padding: 0, cursor: 'pointer', fontSize: 12.5, fontWeight: 500 }}
                   >
                     Politykę Prywatności
                   </button>
@@ -291,8 +294,8 @@ export default function AuthPage() {
               width: '100%',
               padding: '12px',
               borderRadius: 10,
-              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-              color: '#0d1117',
+              background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+              color: '#ffffff',
               border: 'none',
               fontWeight: 700,
               fontSize: 14,
@@ -301,7 +304,7 @@ export default function AuthPage() {
               alignItems: 'center',
               justifyContent: 'center',
               gap: 8,
-              boxShadow: '0 4px 16px rgba(245, 158, 11, 0.25)',
+              boxShadow: '0 4px 20px rgba(99, 102, 241, 0.35)',
               marginTop: 6,
               transition: 'transform 0.1s, opacity 0.2s',
             }}
@@ -330,7 +333,7 @@ export default function AuthPage() {
             onClick={() => { setMode('login'); setMessage(null) }}
             style={{
               marginTop: 20, background: 'none', border: 'none',
-              color: '#fbbf24', fontSize: 13, cursor: 'pointer',
+              color: '#818cf8', fontSize: 13, cursor: 'pointer',
               display: 'block', width: '100%', textAlign: 'center',
             }}
           >
@@ -351,13 +354,13 @@ export default function AuthPage() {
           <div className="fade-in" style={{
             maxWidth: 560, width: '100%', maxHeight: '82vh',
             display: 'flex', flexDirection: 'column', padding: 28,
-            background: '#121826',
+            background: '#121626',
             border: '1px solid rgba(255, 255, 255, 0.1)',
             borderRadius: 20,
             boxShadow: '0 25px 60px rgba(0,0,0,0.8)',
           }}>
             <h2 style={{ fontSize: 19, fontWeight: 700, marginBottom: 16, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Feather size={20} color="#f59e0b" />
+              <Feather size={20} color="#818cf8" />
               {showTermsModal === 'terms' ? 'Regulamin Serwisu Studio Książki' : 'Polityka Prywatności'}
             </h2>
             
@@ -371,14 +374,14 @@ export default function AuthPage() {
                   <p><strong style={{ color: '#e2e8f0' }}>2. Konto Użytkownika</strong><br />Każdy użytkownik jest odpowiedzialny za zachowanie poufności swoich danych logowania oraz za wszelkie działania podejmowane na jego koncie.</p>
                   <p><strong style={{ color: '#e2e8f0' }}>3. Prawa autorskie i treść</strong><br />Wszelkie materiały i treści tworzone przez Użytkownika wewnątrz aplikacji stanowią jego wyłączną własność. Serwis nie rości sobie żadnych praw autorskich do utworów pisarzy.</p>
                   <p><strong style={{ color: '#e2e8f0' }}>4. Dostępność i bazy danych</strong><br />Aplikacja świadczy usługi w modelu SaaS. Korzystanie z wersji darmowej podlega standardowym ograniczeniom technicznym serwisu.</p>
-                  <p><strong style={{ color: '#e2e8f0' }}>5. Kontakt i pomoc</strong><br />W sprawach regulaminu i pomocy technicznej prosimy o kontakt pod adresem e-mail: <u style={{ color: '#fbbf24' }}>kontakt@studioksiazki.pl</u>.</p>
+                  <p><strong style={{ color: '#e2e8f0' }}>5. Kontakt i pomoc</strong><br />W sprawach regulaminu i pomocy technicznej prosimy o kontakt pod adresem e-mail: <u style={{ color: '#818cf8' }}>kontakt@studioksiazki.pl</u>.</p>
                 </>
               ) : (
                 <>
                   <p><strong style={{ color: '#e2e8f0' }}>1. Ochrona danych osobowych i Administrator</strong><br />Zapewniamy pełną ochronę prywatności użytkowników zgodnie z RODO i obowiązującymi przepisami prawa. Administratorem Twoich danych osobowych jest Studio Książki.</p>
                   <p><strong style={{ color: '#e2e8f0' }}>2. Przetwarzanie danych</strong><br />Przetwarzamy Twój adres e-mail oraz nazwę profilu wyłącznie w celu świadczenia usługi logowania i synchronizacji Twoich projektów książkowych.</p>
                   <p><strong style={{ color: '#e2e8f0' }}>3. Bezpieczeństwo i szyfrowanie</strong><br />Dane składowane są w bezpiecznej infrastrukturze Supabase z szyfrowaniem połączeń (TLS/SSL).</p>
-                  <p><strong style={{ color: '#e2e8f0' }}>4. Twoje prawa i kontakt</strong><br />Masz prawo wglądu, modyfikacji oraz żądania całkowitego usunięcia swoich danych w dowolnym momencie w ustawieniach profilu. Kontakt w sprawach prywatności: <u style={{ color: '#fbbf24' }}>kontakt@studioksiazki.pl</u>.</p>
+                  <p><strong style={{ color: '#e2e8f0' }}>4. Twoje prawa i kontakt</strong><br />Masz prawo wglądu, modyfikacji oraz żądania całkowitego usunięcia swoich danych w dowolnym momencie w ustawieniach profilu. Kontakt w sprawach prywatności: <u style={{ color: '#818cf8' }}>kontakt@studioksiazki.pl</u>.</p>
                 </>
               )}
             </div>
@@ -393,12 +396,13 @@ export default function AuthPage() {
                 style={{
                   padding: '10px 20px',
                   borderRadius: 10,
-                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                  color: '#0d1117',
+                  background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                  color: '#ffffff',
                   border: 'none',
                   fontWeight: 700,
                   fontSize: 13.5,
                   cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(99, 102, 241, 0.3)',
                 }}
               >
                 Rozumiem i Akceptuję
