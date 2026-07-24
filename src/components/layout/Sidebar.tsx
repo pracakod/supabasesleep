@@ -78,12 +78,13 @@ export default function Sidebar({ active, onChange, isOpen, onClose }: SidebarPr
 
         {/* Profil użytkownika w stopce */}
         <div style={{
-          padding: '12px 12px',
+          padding: '16px 14px calc(16px + env(safe-area-inset-bottom)) 14px',
           borderTop: '1px solid var(--border)',
           display: 'flex', alignItems: 'center', gap: 10,
+          background: 'var(--bg-secondary)',
         }}>
           <div style={{
-            width: 32, height: 32, borderRadius: '50%',
+            width: 34, height: 34, borderRadius: '50%',
             background: 'linear-gradient(135deg, var(--accent), var(--accent-dim))',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0, fontSize: 13, fontWeight: 700, color: '#000',
@@ -100,11 +101,12 @@ export default function Sidebar({ active, onChange, isOpen, onClose }: SidebarPr
           </div>
           <button
             onClick={() => { signOut() }}
-            className="btn-icon btn-ghost"
+            className="btn btn-ghost"
             title="Wyloguj się"
-            style={{ color: 'var(--text-muted)', padding: 6 }}
+            style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)', padding: '6px 10px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}
           >
-            <LogOut size={14} />
+            <LogOut size={15} />
+            <span style={{ fontSize: 12, fontWeight: 600 }}>Wyloguj</span>
           </button>
         </div>
       </aside>

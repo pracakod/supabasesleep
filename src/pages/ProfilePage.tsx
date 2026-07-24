@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import ImageUploader from '../components/ui/ImageUploader'
-import { Award, Mail, Calendar, Check, AlertCircle } from 'lucide-react'
+import { Award, Mail, Calendar, Check, AlertCircle, LogOut } from 'lucide-react'
 
 export default function ProfilePage() {
-  const { profile, updateProfile } = useAuth()
+  const { profile, updateProfile, signOut } = useAuth()
   const [displayName, setDisplayName] = useState(profile?.display_name || '')
   const [pseudonym, setPseudonym] = useState(profile?.pseudonym || '')
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '')
@@ -149,7 +149,16 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 28 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 28 }}>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => signOut()}
+              style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)', gap: 6 }}
+            >
+              <LogOut size={16} /> Wyloguj z aplikacji
+            </button>
+
             <button
               type="submit"
               className="btn btn-primary"
