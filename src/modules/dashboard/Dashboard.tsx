@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useProject } from '../../contexts/ProjectContext'
 import { supabase } from '../../lib/supabase'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import WordProgressBar from '../../components/ui/WordProgressBar'
+import ImageUploader from '../../components/ui/ImageUploader'
 import { useDebounce } from '../../hooks/useDebounce'
-import { uploadToSupabase } from '../../hooks/useImageCompress'
 import { useNotification } from '../../contexts/NotificationContext'
 import type { Project } from '../../types/database.types'
 import {
@@ -26,24 +26,20 @@ export default function Dashboard() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [projectForm, setProjectForm] = useState({ title: '', subtitle: '', genre: '', target_words: 80000 })
 
-  const coverInputRef = useRef<HTMLInputElement>(null)
-  const [uploadingCover, setUploadingCover] = useState(false)
+  // Edit project modal
+  const [showEditProject, setShowEditProject] = useState(false)
+  const [editProjectForm, setEditProjectForm] = useState({ title: '', subtitle: '', genre: '', target_words: 80000, cover_url: '' })
 
-  const handleCoverFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file || !currentProject || !profile) return
-    setUploadingCover(true)
-    try {
-      const path = `${profile.id}/covers/${Date.now()}.webp`
-      const url = await uploadToSupabase(supabase, file, path)
-      if (url) {
-        await updateCover(url)
-      }
-    } catch (err: any) {
-      showToast(err.message || 'Błąd podczas wgrywania okładki', 'error')
-    } finally {
-      setUploadingCover(false)
-    }
+  const openEditProject = () => {
+    if (!currentProject) return
+    setEditProjectForm({
+      title: currentProject.title || '',
+      subtitle: (currentProject as any).subtitle || '',
+      genre: (currentProject as any).genre || '',
+      target_words: (currentProject as any).target_words || 80000,
+      cover_url: currentProject.cover_url || '',
+    })
+    setShowEditProject(true)
   }
 
   useEffect(() => {
@@ -145,14 +141,30 @@ export default function Dashboard() {
     }
   })
 
-  // Upload okładki
-  const updateCover = async (url: string) => {
-    if (!currentProject) return
-    addLog(`Zaktualizowano okładkę dla projektu "${currentProject.title}"`, 'info')
-    await supabase.from('projects').update({ cover_url: url }).eq('id', currentProject.id)
-    setCurrentProject({ ...currentProject, cover_url: url })
-    qc.invalidateQueries({ queryKey: ['projects'] })
-  }
+  // Aktualizacja danych projektu
+  const updateProject = useMutation({
+    mutationFn: async () => {
+      if (!currentProject) return
+      const { error } = await supabase.from('projects').update({
+        title: editProjectForm.title,
+        subtitle: editProjectForm.subtitle,
+        genre: editProjectForm.genre,
+        target_words: editProjectForm.target_words,
+        cover_url: editProjectForm.cover_url,
+        updated_at: new Date().toISOString(),
+      }).eq('id', currentProject.id)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      if (!currentProject) return
+      const updated = { ...currentProject, ...editProjectForm }
+      setCurrentProject(updated as any)
+      qc.invalidateQueries({ queryKey: ['projects'] })
+      setShowEditProject(false)
+      showToast('Projekt zaktualizowany!', 'success')
+    },
+    onError: (err: any) => showToast(err.message || 'Błąd zapisu', 'error'),
+  })
 
   // Backup projektu
   const downloadBackup = async () => {
@@ -231,46 +243,33 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* Przycisk edycji okładki (ołowek) */}
+              {/* Przycisk edycji projektu (ołówek) */}
               {currentProject && (
-                <>
-                  <button
-                    onClick={() => coverInputRef.current?.click()}
-                    style={{
-                      position: 'absolute',
-                      bottom: 12,
-                      right: 12,
-                      width: 36,
-                      height: 36,
-                      borderRadius: '50%',
-                      background: 'var(--accent)',
-                      border: 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      zIndex: 10,
-                      color: '#000',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
-                      transition: 'all 0.2s',
-                    }}
-                    title="Zmień okładkę"
-                    className="cover-edit-btn"
-                  >
-                    {uploadingCover ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : (
-                      <Pencil size={15} />
-                    )}
-                  </button>
-                  <input
-                    ref={coverInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleCoverFileChange}
-                    style={{ display: 'none' }}
-                  />
-                </>
+                <button
+                  onClick={openEditProject}
+                  style={{
+                    position: 'absolute',
+                    bottom: 12,
+                    right: 12,
+                    width: 36,
+                    height: 36,
+                    borderRadius: '50%',
+                    background: 'var(--accent)',
+                    border: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    zIndex: 10,
+                    color: '#000',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                    transition: 'all 0.2s',
+                  }}
+                  title="Edytuj projekt"
+                  className="cover-edit-btn"
+                >
+                  <Pencil size={15} />
+                </button>
               )}
             </div>
           </div>
@@ -464,6 +463,65 @@ export default function Dashboard() {
                 disabled={createProject.isPending}
               >
                 <Check size={14} /> Stwórz Projekt
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal edycji projektu */}
+      {showEditProject && currentProject && (
+        <div className="modal-backdrop" onClick={() => setShowEditProject(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 520 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>Edytuj Projekt</h2>
+              <button onClick={() => setShowEditProject(false)} className="btn-icon btn-ghost"><X size={18} /></button>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+              <ImageUploader
+                currentUrl={editProjectForm.cover_url}
+                folder="covers"
+                onUpload={url => setEditProjectForm(f => ({ ...f, cover_url: url }))}
+                aspectRatio="2/3"
+                size="lg"
+                label="Okładka książki"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="label">Tytuł książki *</label>
+              <input className="input" placeholder="Tytuł Twojej książki"
+                value={editProjectForm.title}
+                onChange={e => setEditProjectForm(f => ({ ...f, title: e.target.value }))} />
+            </div>
+            <div className="form-group">
+              <label className="label">Podtytuł</label>
+              <input className="input" placeholder="Opcjonalny podtytuł"
+                value={editProjectForm.subtitle}
+                onChange={e => setEditProjectForm(f => ({ ...f, subtitle: e.target.value }))} />
+            </div>
+            <div className="form-group">
+              <label className="label">Gatunek</label>
+              <input className="input" placeholder="np. Fantasy, Thriller, Romans..."
+                value={editProjectForm.genre}
+                onChange={e => setEditProjectForm(f => ({ ...f, genre: e.target.value }))} />
+            </div>
+            <div className="form-group">
+              <label className="label">Cel słów</label>
+              <input className="input" type="number" placeholder="80000"
+                value={editProjectForm.target_words}
+                onChange={e => setEditProjectForm(f => ({ ...f, target_words: Number(e.target.value) }))} />
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
+              <button onClick={() => setShowEditProject(false)} className="btn btn-ghost">Anuluj</button>
+              <button
+                onClick={() => updateProject.mutate()}
+                className="btn btn-primary"
+                disabled={updateProject.isPending}
+              >
+                <Check size={14} /> Zapisz zmiany
               </button>
             </div>
           </div>
