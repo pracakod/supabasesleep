@@ -77,78 +77,75 @@ export default function AuthPage() {
         opacity: 0.6,
       }} />
 
-      {/* Główny kontener - Pracownia Pisarza (2 kolumny na desktopie) */}
+      {/* Główny kontener - Zwarty, kompaktowy panel pisarza */}
       <div className="fade-in" style={{
         width: '100%',
-        maxWidth: 920,
+        maxWidth: 760,
         position: 'relative',
         zIndex: 10,
         background: '#0f172a',
         border: '1px solid rgba(255, 255, 255, 0.1)',
-        borderRadius: 24,
-        boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+        borderRadius: 20,
+        boxShadow: '0 20px 50px -15px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
         overflow: 'hidden',
         margin: 'auto 0',
       }}>
-        {/* Lewa kolumna: Klimat Pisarski / Cytat / Wizja */}
+        {/* Lewa kolumna: Cytat i Inspiracja */}
         <div style={{
-          padding: '40px 36px',
+          padding: '28px 24px',
           background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.95))',
           borderRight: '1px solid rgba(255, 255, 255, 0.08)',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          position: 'relative',
         }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
               <div style={{
-                width: 44, height: 44,
-                borderRadius: 12,
+                width: 38, height: 38,
+                borderRadius: 10,
                 background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 8px 20px rgba(99, 102, 241, 0.3)',
+                boxShadow: '0 6px 16px rgba(99, 102, 241, 0.3)',
               }}>
-                <Feather size={22} color="#ffffff" />
+                <Feather size={19} color="#ffffff" />
               </div>
               <div>
-                <span style={{ fontSize: 18, fontWeight: 800, color: '#ffffff', letterSpacing: '-0.3px' }}>
+                <span style={{ fontSize: 16, fontWeight: 800, color: '#ffffff', letterSpacing: '-0.3px' }}>
                   Studio Książki
                 </span>
-                <span style={{ display: 'block', fontSize: 11, color: '#818cf8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                <span style={{ display: 'block', fontSize: 10.5, color: '#818cf8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
                   Warsztat Autorski
                 </span>
               </div>
             </div>
 
-            <div style={{ marginTop: 24 }}>
+            <div style={{ marginTop: 14 }}>
               <p style={{
                 fontFamily: 'Merriweather, serif',
-                fontSize: 16,
+                fontSize: 14,
                 fontStyle: 'italic',
                 color: '#cbd5e1',
-                lineHeight: 1.7,
-                position: 'relative',
+                lineHeight: 1.6,
               }}>
                 „Nie ma większej udręki niż noszenie w sobie nienapisanej historii.”
               </p>
-              <span style={{ display: 'block', marginTop: 10, fontSize: 12.5, color: '#94a3b8', fontWeight: 500 }}>
+              <span style={{ display: 'block', marginTop: 8, fontSize: 12, color: '#94a3b8', fontWeight: 500 }}>
                 — Maya Angelou
               </span>
             </div>
           </div>
 
-          {/* Cechy warsztatu dla pisarza */}
-          <div style={{ marginTop: 36, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
-              'Kompletne środowisko do pisania powieści i opowiadań',
-              'Drzewo postaci, lokacji i osie czasu fabuły',
-              'Automatyczny zapis offline i pełna prywatność dzieła'
+              'Twórz powieści i opowiadania',
+              'Drzewo postaci, lokacji i osie czasu',
+              'Zapis offline i pełna prywatność'
             ].map((text, idx) => (
-              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#cbd5e1' }}>
-                <CheckCircle2 size={16} color="#818cf8" style={{ flexShrink: 0 }} />
+              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: '#cbd5e1' }}>
+                <CheckCircle2 size={15} color="#818cf8" style={{ flexShrink: 0 }} />
                 <span>{text}</span>
               </div>
             ))}
@@ -156,14 +153,14 @@ export default function AuthPage() {
         </div>
 
         {/* Prawa kolumna: Formularz Logowania / Rejestracji */}
-        <div style={{ padding: '40px 32px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <div style={{ marginBottom: 24 }}>
-            <h2 style={{ fontSize: 22, fontWeight: 700, color: '#ffffff' }}>
+        <div style={{ padding: '28px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ marginBottom: 18 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: '#ffffff' }}>
               {mode === 'login' ? 'Witaj w Pracowni' :
                mode === 'register' ? 'Stwórz Konto Autora' :
                'Resetuj Hasło'}
             </h2>
-            <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 4 }}>
+            <p style={{ fontSize: 12.5, color: '#94a3b8', marginTop: 3 }}>
               {mode === 'login' ? 'Zaloguj się, aby kontynuować pisanie utworu' :
                mode === 'register' ? 'Zarejestruj się i rozpocznij tworzenie książki' :
                'Podaj email przypisany do konta'}
@@ -175,20 +172,20 @@ export default function AuthPage() {
             <div style={{
               display: 'flex',
               background: 'rgba(15, 23, 42, 0.8)',
-              borderRadius: 10,
-              padding: 4,
-              marginBottom: 20,
+              borderRadius: 8,
+              padding: 3,
+              marginBottom: 16,
               border: '1px solid rgba(255, 255, 255, 0.08)',
             }}>
               {(['login', 'register'] as Mode[]).map(m => (
                 <button key={m} onClick={() => { setMode(m); setMessage(null) }}
                   style={{
-                    flex: 1, padding: '8px 12px', borderRadius: 8,
+                    flex: 1, padding: '7px 10px', borderRadius: 6,
                     background: mode === m ? '#6366f1' : 'transparent',
                     border: 'none',
                     color: mode === m ? '#ffffff' : '#94a3b8',
                     fontWeight: mode === m ? 600 : 500,
-                    fontSize: 13, cursor: 'pointer', transition: 'all 0.2s ease',
+                    fontSize: 12.5, cursor: 'pointer', transition: 'all 0.2s ease',
                   }}
                 >
                   {m === 'login' ? 'Logowanie' : 'Rejestracja'}
@@ -197,10 +194,10 @@ export default function AuthPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {mode === 'register' && (
               <div>
-                <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#cbd5e1', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#cbd5e1', marginBottom: 4 }}>
                   Imię lub Pseudonim autorski
                 </label>
                 <input
@@ -211,12 +208,12 @@ export default function AuthPage() {
                   required
                   style={{
                     width: '100%',
-                    padding: '11px 14px',
-                    borderRadius: 9,
+                    padding: '9.5px 12px',
+                    borderRadius: 8,
                     background: 'rgba(30, 41, 59, 0.5)',
                     border: '1px solid rgba(255, 255, 255, 0.12)',
                     color: '#ffffff',
-                    fontSize: 13.5,
+                    fontSize: 13,
                     outline: 'none',
                   }}
                 />
@@ -224,7 +221,7 @@ export default function AuthPage() {
             )}
 
             <div>
-              <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#cbd5e1', marginBottom: 6 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#cbd5e1', marginBottom: 4 }}>
                 Adres e-mail
               </label>
               <input
@@ -235,12 +232,12 @@ export default function AuthPage() {
                 required
                 style={{
                   width: '100%',
-                  padding: '11px 14px',
-                  borderRadius: 9,
+                  padding: '9.5px 12px',
+                  borderRadius: 8,
                   background: 'rgba(30, 41, 59, 0.5)',
                   border: '1px solid rgba(255, 255, 255, 0.12)',
                   color: '#ffffff',
-                  fontSize: 13.5,
+                  fontSize: 13,
                   outline: 'none',
                 }}
               />
@@ -248,7 +245,7 @@ export default function AuthPage() {
 
             {mode !== 'reset' && (
               <div>
-                <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#cbd5e1', marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#cbd5e1', marginBottom: 4 }}>
                   Hasło
                 </label>
                 <div style={{ position: 'relative' }}>
@@ -260,12 +257,12 @@ export default function AuthPage() {
                     required
                     style={{
                       width: '100%',
-                      padding: '11px 40px 11px 14px',
-                      borderRadius: 9,
+                      padding: '9.5px 36px 9.5px 12px',
+                      borderRadius: 8,
                       background: 'rgba(30, 41, 59, 0.5)',
                       border: '1px solid rgba(255, 255, 255, 0.12)',
                       color: '#ffffff',
-                      fontSize: 13.5,
+                      fontSize: 13,
                       outline: 'none',
                     }}
                   />
@@ -273,12 +270,12 @@ export default function AuthPage() {
                     type="button"
                     onClick={() => setShowPass(!showPass)}
                     style={{
-                      position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                      position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
                       background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}
                   >
-                    {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </div>
