@@ -752,6 +752,9 @@ body {
   .dashboard-layout > div {
     width: 100%;
   }
+  .dashboard-subgrid {
+    grid-template-columns: 1fr !important;
+  }
 
   /* Responsywny edytor */
   .editor-layout.has-selected .editor-sidebar {
