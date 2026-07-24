@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import ImageUploader from '../components/ui/ImageUploader'
-import { Award, Mail, Calendar, Check, AlertCircle, LogOut } from 'lucide-react'
+import { Award, Mail, Calendar, Check, AlertCircle, LogOut, Info, X, Sparkles } from 'lucide-react'
 
 export default function ProfilePage() {
   const { profile, updateProfile, signOut } = useAuth()
@@ -10,6 +10,7 @@ export default function ProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '')
   const [toast, setToast] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [showPlansModal, setShowPlansModal] = useState(false)
 
   // Sync local form state whenever profile loads from Supabase
   useEffect(() => {
@@ -104,8 +105,30 @@ export default function ProfilePage() {
           </div>
 
           <div className="form-grid-two" style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
-            <div style={{ background: 'var(--bg-secondary)', padding: 14, borderRadius: 8, border: '1px solid var(--border)' }}>
-              <span style={{ fontSize: 11.5, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 600 }}>Status konta</span>
+            <div style={{ background: 'var(--bg-secondary)', padding: 14, borderRadius: 8, border: '1px solid var(--border)', position: 'relative' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 11.5, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 600 }}>Status konta</span>
+                <button
+                  type="button"
+                  onClick={() => setShowPlansModal(true)}
+                  style={{
+                    background: 'rgba(74, 222, 128, 0.1)',
+                    border: '1px solid var(--accent)',
+                    borderRadius: '50%',
+                    width: 22,
+                    height: 22,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--accent)',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s',
+                  }}
+                  title="Zobacz limity i porówaj plany subskrypcji"
+                >
+                  <Info size={13} />
+                </button>
+              </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
                 <Award size={18} style={{
                   color: profile.status === 'pro' ? '#ec4899'
@@ -178,6 +201,115 @@ export default function ProfilePage() {
         }}>
           {toast.type === 'success' ? <Check size={16} /> : <AlertCircle size={16} />}
           {toast.text}
+        </div>
+      )}
+      {/* Modal Porównywania Planów */}
+      {showPlansModal && (
+        <div className="modal-backdrop" onClick={() => setShowPlansModal(false)}>
+          <div className="modal fade-in" onClick={e => e.stopPropagation()} style={{ maxWidth: 680, padding: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(74, 222, 128, 0.1)', border: '1px solid var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)' }}>
+                  <Sparkles size={18} />
+                </div>
+                <div>
+                  <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Plany i Limity Subskrypcji</h2>
+                  <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0 }}>Wybierz plan idealny dla Twojego procesu twórczego</p>
+                </div>
+              </div>
+              <button onClick={() => setShowPlansModal(false)} className="btn-icon btn-ghost"><X size={18} /></button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 14 }}>
+              {/* Plan Darmowy */}
+              <div style={{
+                background: profile.status === 'free' ? 'rgba(74,222,128,0.05)' : 'var(--bg-secondary)',
+                border: `1px solid ${profile.status === 'free' ? 'var(--accent)' : 'var(--border)'}`,
+                borderRadius: 12,
+                padding: 16,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 12,
+                position: 'relative'
+              }}>
+                {profile.status === 'free' && (
+                  <span className="badge badge-accent" style={{ position: 'absolute', top: 12, right: 12, fontSize: 10 }}>Twój plan</span>
+                )}
+                <div>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>🆓 Darmowy</h3>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--accent)', marginTop: 4 }}>0 zł <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-muted)' }}>/ mc</span></div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
+                  <div>📚 <strong>2</strong> projekty książek</div>
+                  <div>📝 <strong>10</strong> rozdziałów / projekt</div>
+                  <div>👥 <strong>10</strong> postaci</div>
+                  <div>📍 <strong>5</strong> lokacji</div>
+                  <div>⏳ <strong>10</strong> wydarzeń osi czasu</div>
+                  <div>🗂️ <strong>15</strong> kart na tablicy</div>
+                </div>
+              </div>
+
+              {/* Plan Podstawowy */}
+              <div style={{
+                background: (profile.status === 'basic' || profile.status === 'premium') ? 'rgba(59,130,246,0.05)' : 'var(--bg-secondary)',
+                border: `1px solid ${(profile.status === 'basic' || profile.status === 'premium') ? '#3b82f6' : 'var(--border)'}`,
+                borderRadius: 12,
+                padding: 16,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 12,
+                position: 'relative'
+              }}>
+                {(profile.status === 'basic' || profile.status === 'premium') && (
+                  <span className="badge" style={{ position: 'absolute', top: 12, right: 12, fontSize: 10, background: '#3b82f6', color: '#fff' }}>Twój plan</span>
+                )}
+                <div>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>⭐ Podstawowy</h3>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: '#3b82f6', marginTop: 4 }}>9 zł <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-muted)' }}>/ mc</span></div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
+                  <div>📚 <strong>5</strong> projektów książek</div>
+                  <div>📝 <strong>30</strong> rozdziałów / projekt</div>
+                  <div>👥 <strong>30</strong> postaci</div>
+                  <div>📍 <strong>20</strong> lokacji</div>
+                  <div>⏳ <strong>50</strong> wydarzeń osi czasu</div>
+                  <div>🗂️ <strong>50</strong> kart na tablicy</div>
+                </div>
+              </div>
+
+              {/* Plan Pro */}
+              <div style={{
+                background: profile.status === 'pro' ? 'rgba(236,72,153,0.05)' : 'var(--bg-secondary)',
+                border: `1px solid ${profile.status === 'pro' ? '#ec4899' : 'var(--border)'}`,
+                borderRadius: 12,
+                padding: 16,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 12,
+                position: 'relative'
+              }}>
+                {profile.status === 'pro' && (
+                  <span className="badge" style={{ position: 'absolute', top: 12, right: 12, fontSize: 10, background: '#ec4899', color: '#fff' }}>Twój plan</span>
+                )}
+                <div>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>🚀 Pro</h3>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: '#ec4899', marginTop: 4 }}>19 zł <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-muted)' }}>/ mc</span></div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
+                  <div>📚 <strong>20</strong> projektów książek</div>
+                  <div>📝 <strong>100</strong> rozdziałów / projekt</div>
+                  <div>👥 <strong>100</strong> postaci</div>
+                  <div>📍 <strong>50</strong> lokacji</div>
+                  <div>⏳ <strong>Bez limitu</strong> osi czasu</div>
+                  <div>🗂️ <strong>Bez limitu</strong> kart na tablicy</div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginTop: 20, textAlign: 'center', paddingTop: 16, borderTop: '1px solid var(--border)', fontSize: 12, color: 'var(--text-muted)' }}>
+              Chcesz zmienić swój plan subskrypcji? Skontaktuj się z administratorem lub zaloguj się w panelu rozliczeniowym.
+            </div>
+          </div>
         </div>
       )}
     </div>
