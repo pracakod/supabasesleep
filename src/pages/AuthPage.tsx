@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { BookOpen, Eye, EyeOff, Loader2, Feather } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Feather, CheckCircle2 } from 'lucide-react'
 
 type Mode = 'login' | 'register' | 'reset'
 
@@ -27,7 +27,7 @@ export default function AuthPage() {
       if (error) setMessage({ type: 'error', text: 'Nieprawidłowy email lub hasło.' })
     } else if (mode === 'register') {
       if (!displayName.trim()) {
-        setMessage({ type: 'error', text: 'Wprowadź imię lub pseudonim.' })
+        setMessage({ type: 'error', text: 'Wprowadź imię lub pseudonim autorski.' })
         setLoading(false)
         return
       }
@@ -38,7 +38,7 @@ export default function AuthPage() {
       }
       const { error } = await signUp(email, password, displayName)
       if (error) setMessage({ type: 'error', text: 'Błąd rejestracji: ' + error.message })
-      else setMessage({ type: 'success', text: 'Sprawdź pocztę i potwierdź rejestrację.' })
+      else setMessage({ type: 'success', text: 'Sprawdź pocztę i aktywuj swoje konto autora.' })
     } else {
       const { error } = await resetPassword(email)
       if (error) setMessage({ type: 'error', text: 'Nie udało się wysłać emaila.' })
@@ -52,294 +52,335 @@ export default function AuthPage() {
     <div style={{
       minHeight: '100dvh',
       width: '100%',
-      background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e1b4b 100%)', // Przyjemne, rozjaśnione tło Slate & Indigo
+      background: '#090d16',
+      backgroundImage: `
+        radial-gradient(at 0% 0%, rgba(30, 41, 59, 0.7) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(15, 23, 42, 0.9) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(99, 102, 241, 0.05) 0px, transparent 60%)
+      `,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       padding: '24px 16px',
       paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 20px))',
       fontFamily: 'Inter, system-ui, sans-serif',
-      color: '#f8fafc',
+      color: '#e2e8f0',
       position: 'relative',
       overflowY: 'auto',
     }}>
-      {/* Świetliste ozdobne koła w tle */}
+      {/* Subtelne linie papeterii / siatki w tle */}
       <div style={{
-        position: 'absolute',
-        top: '-100px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: '650px',
-        height: '650px',
-        background: 'radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(99, 102, 241, 0) 70%)',
-        filter: 'blur(90px)',
+        position: 'absolute', inset: 0,
+        backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px)',
+        backgroundSize: '32px 32px',
         pointerEvents: 'none',
+        opacity: 0.6,
       }} />
 
-      <div style={{
-        position: 'absolute',
-        bottom: '-150px',
-        right: '15%',
-        width: '450px',
-        height: '450px',
-        background: 'radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, rgba(0, 0, 0, 0) 70%)',
-        filter: 'blur(90px)',
-        pointerEvents: 'none',
-      }} />
-
+      {/* Główny kontener - Pracownia Pisarza (2 kolumny na desktopie) */}
       <div className="fade-in" style={{
         width: '100%',
-        maxWidth: 420,
+        maxWidth: 920,
         position: 'relative',
         zIndex: 10,
-        background: 'rgba(30, 41, 59, 0.75)', // Jasniejsza, przejrzysta karta
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.15)',
+        background: '#0f172a',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
         borderRadius: 24,
-        padding: '36px 28px',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+        boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+        overflow: 'hidden',
         margin: 'auto 0',
       }}>
-        {/* Logo i Nagłówek */}
-        <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <div style={{
-            width: 60, height: 60,
-            background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-            borderRadius: 18, margin: '0 auto 16px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 10px 25px rgba(99, 102, 241, 0.4)',
-          }}>
-            <BookOpen size={30} color="#ffffff" strokeWidth={2.2} />
+        {/* Lewa kolumna: Klimat Pisarski / Cytat / Wizja */}
+        <div style={{
+          padding: '40px 36px',
+          background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.95))',
+          borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          position: 'relative',
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
+              <div style={{
+                width: 44, height: 44,
+                borderRadius: 12,
+                background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 8px 20px rgba(99, 102, 241, 0.3)',
+              }}>
+                <Feather size={22} color="#ffffff" />
+              </div>
+              <div>
+                <span style={{ fontSize: 18, fontWeight: 800, color: '#ffffff', letterSpacing: '-0.3px' }}>
+                  Studio Książki
+                </span>
+                <span style={{ display: 'block', fontSize: 11, color: '#818cf8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  Warsztat Autorski
+                </span>
+              </div>
+            </div>
+
+            <div style={{ marginTop: 24 }}>
+              <p style={{
+                fontFamily: 'Merriweather, serif',
+                fontSize: 16,
+                fontStyle: 'italic',
+                color: '#cbd5e1',
+                lineHeight: 1.7,
+                position: 'relative',
+              }}>
+                „Nie ma większej udręki niż noszenie w sobie nienapisanej historii.”
+              </p>
+              <span style={{ display: 'block', marginTop: 10, fontSize: 12.5, color: '#94a3b8', fontWeight: 500 }}>
+                — Maya Angelou
+              </span>
+            </div>
           </div>
 
-          <h1 style={{
-            fontSize: 25,
-            fontWeight: 800,
-            color: '#ffffff',
-            letterSpacing: '-0.5px',
-          }}>
-            Studio Książki
-          </h1>
-          <p style={{ fontSize: 13.5, color: '#cbd5e1', marginTop: 6, fontWeight: 400 }}>
-            {mode === 'login' ? 'Przestrzeń Pracy dla Twórców i Pisarzy' :
-             mode === 'register' ? 'Dołącz do grona autorów i twórz własne dzieła' :
-             'Odzyskaj dostęp do swojego warsztatu'}
-          </p>
-        </div>
-
-        {/* Przełącznik Logowanie / Rejestracja */}
-        {mode !== 'reset' && (
-          <div style={{
-            display: 'flex',
-            background: 'rgba(15, 23, 42, 0.6)',
-            borderRadius: 12,
-            padding: 4,
-            marginBottom: 24,
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-          }}>
-            {(['login', 'register'] as Mode[]).map(m => (
-              <button key={m} onClick={() => { setMode(m); setMessage(null) }}
-                style={{
-                  flex: 1, padding: '9px 12px', borderRadius: 9,
-                  background: mode === m ? '#6366f1' : 'transparent',
-                  border: 'none',
-                  color: mode === m ? '#ffffff' : '#94a3b8',
-                  fontWeight: mode === m ? 600 : 500,
-                  fontSize: 13.5, cursor: 'pointer', transition: 'all 0.2s ease',
-                  boxShadow: mode === m ? '0 4px 12px rgba(99, 102, 241, 0.3)' : 'none',
-                }}
-              >
-                {m === 'login' ? 'Logowanie' : 'Rejestracja'}
-              </button>
+          {/* Cechy warsztatu dla pisarza */}
+          <div style={{ marginTop: 36, display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {[
+              'Kompletne środowisko do pisania powieści i opowiadań',
+              'Drzewo postaci, lokacji i osie czasu fabuły',
+              'Automatyczny zapis offline i pełna prywatność dzieła'
+            ].map((text, idx) => (
+              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#cbd5e1' }}>
+                <CheckCircle2 size={16} color="#818cf8" style={{ flexShrink: 0 }} />
+                <span>{text}</span>
+              </div>
             ))}
           </div>
-        )}
+        </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {mode === 'register' && (
+        {/* Prawa kolumna: Formularz Logowania / Rejestracji */}
+        <div style={{ padding: '40px 32px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ marginBottom: 24 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 700, color: '#ffffff' }}>
+              {mode === 'login' ? 'Witaj w Pracowni' :
+               mode === 'register' ? 'Stwórz Konto Autora' :
+               'Resetuj Hasło'}
+            </h2>
+            <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 4 }}>
+              {mode === 'login' ? 'Zaloguj się, aby kontynuować pisanie utworu' :
+               mode === 'register' ? 'Zarejestruj się i rozpocznij tworzenie książki' :
+               'Podaj email przypisany do konta'}
+            </p>
+          </div>
+
+          {/* Przełącznik Logowanie / Rejestracja */}
+          {mode !== 'reset' && (
+            <div style={{
+              display: 'flex',
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: 10,
+              padding: 4,
+              marginBottom: 20,
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+            }}>
+              {(['login', 'register'] as Mode[]).map(m => (
+                <button key={m} onClick={() => { setMode(m); setMessage(null) }}
+                  style={{
+                    flex: 1, padding: '8px 12px', borderRadius: 8,
+                    background: mode === m ? '#6366f1' : 'transparent',
+                    border: 'none',
+                    color: mode === m ? '#ffffff' : '#94a3b8',
+                    fontWeight: mode === m ? 600 : 500,
+                    fontSize: 13, cursor: 'pointer', transition: 'all 0.2s ease',
+                  }}
+                >
+                  {m === 'login' ? 'Logowanie' : 'Rejestracja'}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {mode === 'register' && (
+              <div>
+                <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#cbd5e1', marginBottom: 6 }}>
+                  Imię lub Pseudonim autorski
+                </label>
+                <input
+                  type="text"
+                  placeholder="np. Adam Mickiewicz"
+                  value={displayName}
+                  onChange={e => setDisplayName(e.target.value)}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '11px 14px',
+                    borderRadius: 9,
+                    background: 'rgba(30, 41, 59, 0.5)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    color: '#ffffff',
+                    fontSize: 13.5,
+                    outline: 'none',
+                  }}
+                />
+              </div>
+            )}
+
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#e2e8f0', marginBottom: 6 }}>
-                Imię lub Pseudonim autorski
+              <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#cbd5e1', marginBottom: 6 }}>
+                Adres e-mail
               </label>
               <input
-                type="text"
-                placeholder="np. Adam Mickiewicz"
-                value={displayName}
-                onChange={e => setDisplayName(e.target.value)}
+                type="email"
+                placeholder="autor@studioksiazki.pl"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
                 required
                 style={{
                   width: '100%',
-                  padding: '12px 14px',
-                  borderRadius: 10,
-                  background: 'rgba(15, 23, 42, 0.7)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  padding: '11px 14px',
+                  borderRadius: 9,
+                  background: 'rgba(30, 41, 59, 0.5)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
                   color: '#ffffff',
-                  fontSize: 14,
+                  fontSize: 13.5,
                   outline: 'none',
                 }}
               />
             </div>
-          )}
 
-          <div>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#e2e8f0', marginBottom: 6 }}>
-              Adres e-mail
-            </label>
-            <input
-              type="email"
-              placeholder="autor@studioksiazki.pl"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
+            {mode !== 'reset' && (
+              <div>
+                <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#cbd5e1', marginBottom: 6 }}>
+                  Hasło
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPass ? 'text' : 'password'}
+                    placeholder="••••••••••••"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '11px 40px 11px 14px',
+                      borderRadius: 9,
+                      background: 'rgba(30, 41, 59, 0.5)',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      color: '#ffffff',
+                      fontSize: 13.5,
+                      outline: 'none',
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPass(!showPass)}
+                    style={{
+                      position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                      background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}
+                  >
+                    {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {mode === 'register' && (
+              <div style={{ marginTop: 2 }}>
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', fontSize: 12, color: '#cbd5e1', lineHeight: 1.5 }}>
+                  <input
+                    type="checkbox"
+                    checked={termsAccepted}
+                    onChange={e => setTermsAccepted(e.target.checked)}
+                    style={{ marginTop: 2, accentColor: '#6366f1', cursor: 'pointer', width: 15, height: 15 }}
+                  />
+                  <span>
+                    Akceptuję{' '}
+                    <button
+                      type="button"
+                      onClick={() => setShowTermsModal('terms')}
+                      style={{ background: 'none', border: 'none', color: '#818cf8', textDecoration: 'underline', padding: 0, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
+                    >
+                      Regulamin
+                    </button>
+                    {' '}oraz{' '}
+                    <button
+                      type="button"
+                      onClick={() => setShowTermsModal('privacy')}
+                      style={{ background: 'none', border: 'none', color: '#818cf8', textDecoration: 'underline', padding: 0, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
+                    >
+                      Politykę Prywatności
+                    </button>
+                    .
+                  </span>
+                </label>
+              </div>
+            )}
+
+            {message && (
+              <div style={{
+                padding: '10px 14px', borderRadius: 8,
+                background: message.type === 'error' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 197, 94, 0.2)',
+                border: `1px solid ${message.type === 'error' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(34, 197, 94, 0.4)'}`,
+                color: message.type === 'error' ? '#fca5a5' : '#86efac',
+                fontSize: 12.5,
+              }}>
+                {message.text}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
               style={{
                 width: '100%',
-                padding: '12px 14px',
-                borderRadius: 10,
-                background: 'rgba(15, 23, 42, 0.7)',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
+                padding: '11.5px',
+                borderRadius: 9,
+                background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
                 color: '#ffffff',
+                border: 'none',
+                fontWeight: 700,
                 fontSize: 14,
-                outline: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                boxShadow: '0 4px 16px rgba(99, 102, 241, 0.35)',
+                marginTop: 4,
               }}
-            />
-          </div>
+            >
+              {loading ? <Loader2 size={18} className="animate-spin" /> : null}
+              {mode === 'login' ? 'Wejdź do Warsztatu' :
+               mode === 'register' ? 'Dołącz i Twórz' : 'Wyślij link resetujący'}
+            </button>
+          </form>
 
-          {mode !== 'reset' && (
-            <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#e2e8f0', marginBottom: 6 }}>
-                Hasło
-              </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type={showPass ? 'text' : 'password'}
-                  placeholder="••••••••••••"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '12px 40px 12px 14px',
-                    borderRadius: 10,
-                    background: 'rgba(15, 23, 42, 0.7)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
-                    color: '#ffffff',
-                    fontSize: 14,
-                    outline: 'none',
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPass(!showPass)}
-                  style={{
-                    position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-                    background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}
-                >
-                  {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
+          {mode === 'login' && (
+            <button
+              onClick={() => { setMode('reset'); setMessage(null) }}
+              style={{
+                marginTop: 18, background: 'none', border: 'none',
+                color: '#94a3b8', fontSize: 12.5, cursor: 'pointer',
+                display: 'block', width: '100%', textAlign: 'center',
+              }}
+            >
+              Zapomniałeś hasła?
+            </button>
           )}
 
-          {mode === 'register' && (
-            <div style={{ marginTop: 4 }}>
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', fontSize: 12.5, color: '#cbd5e1', lineHeight: 1.5 }}>
-                <input
-                  type="checkbox"
-                  checked={termsAccepted}
-                  onChange={e => setTermsAccepted(e.target.checked)}
-                  style={{ marginTop: 3, accentColor: '#6366f1', cursor: 'pointer', width: 16, height: 16 }}
-                />
-                <span>
-                  Akceptuję{' '}
-                  <button
-                    type="button"
-                    onClick={() => setShowTermsModal('terms')}
-                    style={{ background: 'none', border: 'none', color: '#a5b4fc', textDecoration: 'underline', padding: 0, cursor: 'pointer', fontSize: 12.5, fontWeight: 600 }}
-                  >
-                    Regulamin
-                  </button>
-                  {' '}oraz{' '}
-                  <button
-                    type="button"
-                    onClick={() => setShowTermsModal('privacy')}
-                    style={{ background: 'none', border: 'none', color: '#a5b4fc', textDecoration: 'underline', padding: 0, cursor: 'pointer', fontSize: 12.5, fontWeight: 600 }}
-                  >
-                    Politykę Prywatności
-                  </button>
-                  .
-                </span>
-              </label>
-            </div>
+          {mode === 'reset' && (
+            <button
+              onClick={() => { setMode('login'); setMessage(null) }}
+              style={{
+                marginTop: 18, background: 'none', border: 'none',
+                color: '#818cf8', fontSize: 12.5, cursor: 'pointer',
+                display: 'block', width: '100%', textAlign: 'center',
+              }}
+            >
+              ← Wróć do logowania
+            </button>
           )}
-
-          {message && (
-            <div style={{
-              padding: '12px 14px', borderRadius: 10,
-              background: message.type === 'error' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 197, 94, 0.2)',
-              border: `1px solid ${message.type === 'error' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(34, 197, 94, 0.4)'}`,
-              color: message.type === 'error' ? '#fca5a5' : '#86efac',
-              fontSize: 13,
-              display: 'flex', alignItems: 'center', gap: 8,
-            }}>
-              {message.text}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              padding: '12px',
-              borderRadius: 10,
-              background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-              color: '#ffffff',
-              border: 'none',
-              fontWeight: 700,
-              fontSize: 14.5,
-              cursor: loading ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)',
-              marginTop: 6,
-              transition: 'all 0.2s',
-            }}
-          >
-            {loading ? <Loader2 size={18} className="animate-spin" /> : null}
-            {mode === 'login' ? 'Zaloguj się' :
-             mode === 'register' ? 'Utwórz konto autora' : 'Wyślij link do resetowania'}
-          </button>
-        </form>
-
-        {mode === 'login' && (
-          <button
-            onClick={() => { setMode('reset'); setMessage(null) }}
-            style={{
-              marginTop: 20, background: 'none', border: 'none',
-              color: '#94a3b8', fontSize: 13, cursor: 'pointer',
-              display: 'block', width: '100%', textAlign: 'center',
-            }}
-          >
-            Zapomniałeś hasła?
-          </button>
-        )}
-
-        {mode === 'reset' && (
-          <button
-            onClick={() => { setMode('login'); setMessage(null) }}
-            style={{
-              marginTop: 20, background: 'none', border: 'none',
-              color: '#a5b4fc', fontSize: 13, cursor: 'pointer',
-              display: 'block', width: '100%', textAlign: 'center',
-            }}
-          >
-            ← Wróć do ekranu logowania
-          </button>
-        )}
+        </div>
       </div>
 
       {/* Modal z Regulaminem i Polityką Prywatności */}
