@@ -48,7 +48,7 @@ export default function AdminDashboard() {
 
   // Mutacje statusu użytkownika
   const updateStatus = useMutation({
-    mutationFn: async ({ userId, status }: { userId: string; status: 'free' | 'premium' | 'blocked' }) => {
+    mutationFn: async ({ userId, status }: { userId: string; status: 'free' | 'basic' | 'pro' | 'premium' | 'blocked' }) => {
       const { error } = await supabase
         .from('profiles')
         .update({ status, updated_at: new Date().toISOString() })
@@ -228,14 +228,18 @@ export default function AdminDashboard() {
 
                     <span style={{
                       padding: '3px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700,
-                      background: user.status === 'premium' ? 'rgba(245,158,11,0.15)'
+                      background: user.status === 'pro' ? 'rgba(236,72,153,0.15)'
+                        : user.status === 'basic' || user.status === 'premium' ? 'rgba(59,130,246,0.15)'
                         : user.status === 'blocked' ? 'rgba(239,68,68,0.15)'
                         : 'rgba(74,222,128,0.1)',
-                      color: user.status === 'premium' ? '#f59e0b'
+                      color: user.status === 'pro' ? '#ec4899'
+                        : user.status === 'basic' || user.status === 'premium' ? '#3b82f6'
                         : user.status === 'blocked' ? '#ef4444'
                         : '#4ade80',
                     }}>
-                      {user.status === 'premium' ? '⭐ Premium'
+                      {user.status === 'pro' ? '🚀 Pro'
+                        : user.status === 'basic' ? '⭐ Podstawowa'
+                        : user.status === 'premium' ? '⭐ Premium'
                         : user.status === 'blocked' ? '🚫 Zablokowany'
                         : '🆓 Darmowy'}
                     </span>
@@ -264,7 +268,8 @@ export default function AdminDashboard() {
                         }}
                       >
                         <option value="free">🆓 Darmowy</option>
-                        <option value="premium">⭐ Premium</option>
+                        <option value="basic">⭐ Podstawowa</option>
+                        <option value="pro">🚀 Pro</option>
                         <option value="blocked">🚫 Zablokowany</option>
                       </select>
 
