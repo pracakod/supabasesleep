@@ -109,9 +109,17 @@ function CharacterTreeInner({ characters, relations, onAddCharacterAtPosition, o
 
   const onConnect = useCallback((connection: Connection) => {
     if (connection.source && connection.target && connection.source !== connection.target) {
+      const alreadyExists = relations.some(
+        r => (r.from_character_id === connection.source && r.to_character_id === connection.target) ||
+             (r.from_character_id === connection.target && r.to_character_id === connection.source)
+      )
+      if (alreadyExists) {
+        alert('Relacja między tymi postaciami już istnieje!')
+        return
+      }
       setConnectModal({ sourceId: connection.source, targetId: connection.target })
     }
-  }, [])
+  }, [relations])
 
   const handleConfirmRelation = () => {
     if (connectModal && onAddRelation) {
