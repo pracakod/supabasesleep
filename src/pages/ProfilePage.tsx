@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import ImageUploader from '../components/ui/ImageUploader'
 import { Award, Mail, Calendar, Check, AlertCircle, LogOut } from 'lucide-react'
@@ -8,15 +8,26 @@ export default function ProfilePage() {
   const [displayName, setDisplayName] = useState(profile?.display_name || '')
   const [pseudonym, setPseudonym] = useState(profile?.pseudonym || '')
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '')
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
+  const [toast, setToast] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+
+  // Sync local form state whenever profile loads from Supabase
+  useEffect(() => {
+    if (!profile) return
+    setDisplayName(profile.display_name || '')
+    setPseudonym(profile.pseudonym || '')
+    setAvatarUrl(profile.avatar_url || '')
+  }, [profile?.id]) // only re-sync when switching profiles, not on every change
+
+  useEffect(() => {
+    if (!toast) return
+    const t = setTimeout(() => setToast(null), 3000)
+    return () => clearTimeout(t)
+  }, [toast])
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSaving(true)
-    setMessage('')
-    setError('')
 
     const { error: err } = await updateProfile({
       display_name: displayName,
@@ -26,9 +37,9 @@ export default function ProfilePage() {
 
     setIsSaving(false)
     if (err) {
-      setError(err.message || 'Wystąpił błąd podczas zapisywania profilu.')
+      setToast({ text: err.message || 'Wystąpił błąd podczas zapisywania profilu.', type: 'error' })
     } else {
-      setMessage('Profil został zaktualizowany pomyślnie.')
+      setToast({ text: 'Profil został zaktualizowany pomyślnie.', type: 'success' })
     }
   }
 
@@ -43,41 +54,6 @@ export default function ProfilePage() {
       </div>
 
       <div className="card" style={{ padding: 28 }}>
-        {message && (
-          <div style={{
-            background: 'var(--accent-glow)',
-            border: '1px solid var(--accent)',
-            color: 'var(--accent)',
-            padding: '10px 14px',
-            borderRadius: 8,
-            fontSize: 13,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            marginBottom: 20
-          }}>
-            <Check size={16} />
-            <span>{message}</span>
-          </div>
-        )}
-
-        {error && (
-          <div style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid #ef4444',
-            color: '#fca5a5',
-            padding: '10px 14px',
-            borderRadius: 8,
-            fontSize: 13,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            marginBottom: 20
-          }}>
-            <AlertCircle size={16} />
-            <span>{error}</span>
-          </div>
-        )}
 
         <form onSubmit={handleSave}>
           <div className="form-grid-avatar">
@@ -170,6 +146,33 @@ export default function ProfilePage() {
         </form>
       </div>
     </div>
+
+      {/* Fixed toast notification */}
+      {toast && (
+        <div style={{
+          position: 'fixed',
+          bottom: 'max(24px, calc(16px + env(safe-area-inset-bottom, 20px)))',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 9999,
+          background: toast.type === 'success' ? 'var(--accent-glow)' : 'rgba(239,68,68,0.15)',
+          border: `1px solid ${toast.type === 'success' ? 'var(--accent)' : '#ef4444'}`,
+          color: toast.type === 'success' ? 'var(--accent)' : '#fca5a5',
+          padding: '12px 20px',
+          borderRadius: 12,
+          fontSize: 13,
+          fontWeight: 600,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          boxShadow: '0 4px 24px rgba(0,0,0,0.35)',
+          whiteSpace: 'nowrap',
+          animation: 'slideUpFade 0.25s ease',
+        }}>
+          {toast.type === 'success' ? <Check size={16} /> : <AlertCircle size={16} />}
+          {toast.text}
+        </div>
+      )}
     </div>
   )
 }
