@@ -248,6 +248,14 @@ export default function Characters() {
           characters={characters}
           relations={relations}
           onAddCharacterAtPosition={handleAddCharacterAtPosition}
+          onAddRelation={async (fromId, toId, type) => {
+            await supabase.from('character_relations').upsert([
+              { project_id: currentProject!.id, from_character_id: fromId, to_character_id: toId, relation_type: type, description: '' },
+              { project_id: currentProject!.id, from_character_id: toId, to_character_id: fromId, relation_type: type, description: '' }
+            ])
+            qc.invalidateQueries({ queryKey: ['char-relations'] })
+            showToast('Połączono postacie w drzewie!', 'success')
+          }}
         />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>

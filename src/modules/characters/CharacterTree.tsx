@@ -1,12 +1,13 @@
+import { useRef, useCallback, useState } from 'react'
 import ReactFlow, {
   Background, Controls,
   useNodesState, useEdgesState,
   BackgroundVariant,
   ReactFlowProvider,
   useReactFlow,
+  addEdge,
 } from 'reactflow'
-import { useRef, useCallback } from 'react'
-import type { Node, Edge } from 'reactflow'
+import type { Node, Edge, Connection } from 'reactflow'
 import 'reactflow/dist/style.css'
 import type { Character, CharacterRelation } from '../../types/database.types'
 
@@ -14,6 +15,7 @@ interface Props {
   characters: Character[]
   relations: CharacterRelation[]
   onAddCharacterAtPosition?: (x: number, y: number, sourceId?: string) => void
+  onAddRelation?: (fromId: string, toId: string, type: string) => void
 }
 
 function buildGraph(characters: Character[], relations: CharacterRelation[]) {
@@ -69,14 +71,38 @@ function buildGraph(characters: Character[], relations: CharacterRelation[]) {
 const nodeTypes = {}
 const edgeTypes = {}
 
-function CharacterTreeInner({ characters, relations, onAddCharacterAtPosition }: Props) {
+function CharacterTreeInner({ characters, relations, onAddCharacterAtPosition, onAddRelation }: Props) {
   const { project } = useReactFlow()
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
   const connectingNodeId = useRef<string | null>(null)
 
+  const [connectModal, setConnectModal] = useState<{ sourceId: string; targetId: string } | null>(null)
+  const [relationTypeInput, setRelationTypeInput] = useState('Przyjaciel')
+
   const { nodes: initNodes, edges: initEdges } = buildGraph(characters, relations)
   const [nodes, , onNodesChange] = useNodesState(initNodes)
-  const [edges, , onEdgesChange] = useEdgesState(initEdges)
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges)
+
+  const onConnect = useCallback((connection: Connection) => {
+    if (connection.source && connection.target && connection.source !== connection.target) {
+      setConnectModal({ sourceId: connection.source, targetId: connection.target })
+    }
+  }, [])
+
+  const handleConfirmRelation = () => {
+    if (connectModal && onAddRelation) {
+      onAddRelation(connectModal.sourceId, connectModal.targetId, relationTypeInput)
+      setEdges((eds) => addEdge({
+        id: `${connectModal.sourceId}-${connectModal.targetId}`,
+        source: connectModal.sourceId,
+        target: connectModal.targetId,
+        label: relationTypeInput,
+        type: 'smoothstep',
+        style: { stroke: 'var(--accent)', strokeWidth: 2 },
+      }, eds))
+    }
+    setConnectModal(null)
+  }
 
   const onConnectStart = useCallback((_: any, { nodeId }: any) => {
     connectingNodeId.current = nodeId
@@ -114,8 +140,11 @@ function CharacterTreeInner({ characters, relations, onAddCharacterAtPosition }:
     </div>
   )
 
+  const sourceChar = characters.find(c => c.id === connectModal?.sourceId)
+  const targetChar = characters.find(c => c.id === connectModal?.targetId)
+
   return (
-    <div ref={reactFlowWrapper} style={{ height: 600, background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
+    <div ref={reactFlowWrapper} style={{ height: 600, background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden', position: 'relative' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -123,6 +152,7 @@ function CharacterTreeInner({ characters, relations, onAddCharacterAtPosition }:
         edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
         onConnectStart={onConnectStart}
         onConnectEnd={onConnectEnd}
         onPaneClick={onPaneDoubleClick}
@@ -137,6 +167,35 @@ function CharacterTreeInner({ characters, relations, onAddCharacterAtPosition }:
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="var(--border)" />
         <Controls style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }} />
       </ReactFlow>
+
+      {/* Modal definiowania relacji połączeniem */}
+      {connectModal && (
+        <div className="modal-backdrop" onClick={() => setConnectModal(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 380 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: 'var(--text-primary)' }}>
+              Dodaj relację między postaciami
+            </h3>
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 16 }}>
+              Połącz <strong>{sourceChar?.name || 'Postać A'}</strong> z <strong>{targetChar?.name || 'Postać B'}</strong>
+            </p>
+            <div className="form-group">
+              <label className="label">Typ relacji / Powiązanie</label>
+              <input
+                type="text"
+                className="input"
+                placeholder="np. Przyjaciel, Wróg, Brat, Sojusznik..."
+                value={relationTypeInput}
+                onChange={e => setRelationTypeInput(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 16 }}>
+              <button className="btn btn-ghost" onClick={() => setConnectModal(null)}>Anuluj</button>
+              <button className="btn btn-primary" onClick={handleConfirmRelation}>Połącz postacie</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
