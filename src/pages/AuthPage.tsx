@@ -27,6 +27,16 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
     }
   }, [])
 
+  const translateError = (msg: string) => {
+    if (msg.includes('is invalid')) return 'Wprowadzony adres e-mail jest nieprawidłowy lub nie istnieje.'
+    if (msg.includes('User not found')) return 'Nie znaleziono użytkownika o tym adresie e-mail.'
+    if (msg.includes('Invalid login credentials')) return 'Nieprawidłowy adres e-mail lub hasło.'
+    if (msg.includes('Email not confirmed')) return 'Adres e-mail nie został jeszcze potwierdzony.'
+    if (msg.includes('Password should be at least')) return 'Hasło powinno mieć co najmniej 6 znaków.'
+    if (msg.includes('User already registered')) return 'Konto o tym adresie e-mail już istnieje.'
+    return msg
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -34,7 +44,7 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
 
     if (mode === 'login') {
       const { error } = await signIn(email, password)
-      if (error) setMessage({ type: 'error', text: 'Nieprawidłowy email lub hasło.' })
+      if (error) setMessage({ type: 'error', text: translateError(error.message) })
     } else if (mode === 'register') {
       if (!displayName.trim()) {
         setMessage({ type: 'error', text: 'Wprowadź imię lub pseudonim autorski.' })
@@ -47,11 +57,11 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
         return
       }
       const { error } = await signUp(email, password, displayName)
-      if (error) setMessage({ type: 'error', text: 'Błąd rejestracji: ' + error.message })
+      if (error) setMessage({ type: 'error', text: translateError(error.message) })
       else setMessage({ type: 'success', text: 'Sprawdź pocztę i aktywuj swoje konto autora.' })
     } else if (mode === 'reset') {
       const { error } = await resetPassword(email)
-      if (error) setMessage({ type: 'error', text: 'Błąd: ' + error.message })
+      if (error) setMessage({ type: 'error', text: translateError(error.message) })
       else setMessage({ type: 'success', text: 'Link do resetowania hasła wysłany na Twoją skrzynkę.' })
     } else if (mode === 'update-password') {
       if (password !== confirmPassword) {
@@ -66,7 +76,7 @@ export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
       }
       const { error } = await supabase.auth.updateUser({ password })
       if (error) {
-        setMessage({ type: 'error', text: 'Błąd zmiany hasła: ' + error.message })
+        setMessage({ type: 'error', text: translateError(error.message) })
       } else {
         setMessage({ type: 'success', text: 'Hasło zostało zmienione! Możesz się teraz zalogować.' })
         setTimeout(() => {
