@@ -232,7 +232,7 @@ export default function Dashboard() {
           </div>
 
           {/* PRAWA: Reszta dashboardu */}
-          <div style={{ display: 'grid', gap: 16 }}>
+          <div style={{ display: 'grid', gap: 16, width: '100%', minWidth: 0 }}>
             {/* Metadane projektu */}
             <div className="card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>

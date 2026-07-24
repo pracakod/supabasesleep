@@ -737,10 +737,11 @@ body {
 
   .dashboard-layout {
     grid-template-columns: 1fr;
-    justify-items: center;
+    justify-items: stretch;
+    width: 100%;
   }
-  .dashboard-subgrid {
-    grid-template-columns: 1fr;
+  .dashboard-layout > div {
+    width: 100%;
   }
 
   /* Responsywny edytor */
