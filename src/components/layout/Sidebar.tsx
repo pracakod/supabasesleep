@@ -1,7 +1,7 @@
 import React from 'react'
 import {
   LayoutDashboard, BookOpen, Users, MapPin, Clock, Kanban,
-  Search, Lightbulb, LogOut, ChevronRight, BookMarked,
+  Search, Lightbulb, LogOut, ChevronRight, BookMarked, Shield,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 
@@ -96,9 +96,32 @@ export default function Sidebar({ active, onChange, isOpen, onClose }: SidebarPr
               {profile?.pseudonym || 'D. K.'}
             </p>
             <p style={{ fontSize: 10.5, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {profile?.status === 'premium' ? '⭐ Premium' : '🆓 Darmowy'}
+              {profile?.status === 'pro' ? '🚀 Pro'
+                : profile?.status === 'basic' ? '⭐ Podstawowa'
+                : profile?.status === 'premium' ? '⭐ Premium'
+                : '🆓 Darmowy'}
             </p>
           </div>
+          {profile?.email === 'test@studio.pl' && (
+            <a
+              href="/admin-login"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                fontSize: 11, fontWeight: 700,
+                color: '#4ade80', padding: '5px 8px',
+                borderRadius: 6, marginBottom: 8,
+                border: '1px solid rgba(74,222,128,0.25)',
+                background: 'rgba(74,222,128,0.07)',
+                textDecoration: 'none',
+                transition: 'background 0.15s',
+              }}
+              title="Otwórz Panel Admina"
+            >
+              <Shield size={13} /> Panel Admina
+            </a>
+          )}
           <button
             onClick={() => { signOut() }}
             className="btn btn-ghost"
