@@ -63,8 +63,10 @@ export default function TopBar({ onMenuToggle, participants = [], activeModule =
 
   React.useEffect(() => {
     if (projects.length > 0 && !currentProject) {
-      console.log('[TopBar] Automatycznie ustawiam pierwszy projekt jako aktywny:', projects[0])
-      setCurrentProject(projects[0])
+      const savedId = localStorage.getItem('sk-last-project-id')
+      const found = projects.find(p => p.id === savedId)
+      console.log('[TopBar] Przywracam aktywny projekt:', found || projects[0])
+      setCurrentProject(found || projects[0])
     }
   }, [projects, currentProject, setCurrentProject])
 
