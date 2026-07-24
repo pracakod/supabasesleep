@@ -151,7 +151,7 @@ export default function ProfilePage() {
       {toast && (
         <div style={{
           position: 'fixed',
-          bottom: 'max(24px, calc(16px + env(safe-area-inset-bottom, 20px)))',
+          top: 'max(16px, calc(8px + env(safe-area-inset-top, 16px)))',
           left: '50%',
           transform: 'translateX(-50%)',
           zIndex: 9999,
