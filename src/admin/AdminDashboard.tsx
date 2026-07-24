@@ -268,29 +268,74 @@ export default function AdminDashboard() {
                 Brak nowych oczekujących zgłoszeń subskrypcji. Wszystkie zamówienia zostały obsłużone!
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {pendingOrders.map((ord: any) => (
-                  <div key={ord.user.id} style={{ background: '#172a1e', border: '1px solid #f59e0b', borderRadius: 8, padding: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-                    <div>
-                      <span style={{ fontWeight: 700, fontSize: 13, color: '#e8f5ee' }}>{ord.user.email || ord.user.display_name}</span>
-                      <div style={{ fontSize: 11, color: '#9dbfaa', marginTop: 2 }}>
-                        Wybrany plan: <strong style={{ color: ord.requestedPlan === 'pro' ? '#ec4899' : '#3b82f6' }}>{ord.requestedPlan === 'pro' ? '🚀 Pro (19 zł/mc)' : '⭐ Podstawowy (9 zł/mc)'}</strong> · Płatność: <strong>{ord.paymentMethod === 'blik' ? 'BLIK' : 'Przelew'}</strong>
-                      </div>
-                      {ord.message && ord.message !== 'bez uwag' && (
-                        <p style={{ fontSize: 11, color: '#9dbfaa', fontStyle: 'italic', marginTop: 4 }}>Wiadomość: "{ord.message}"</p>
-                      )}
-                    </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {pendingOrders.map((ord: any) => {
+                  const displayPseudo = (ord.user.pseudonym || '').replace(/\[ORDER:[^\]]+\]/g, '').trim()
+                  return (
+                    <div key={ord.user.id} style={{ background: '#172a1e', border: '1px solid #f59e0b', borderRadius: 10, padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          {ord.user.avatar_url ? (
+                            <img src={ord.user.avatar_url} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' }} />
+                          ) : (
+                            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(245,158,11,0.15)', border: '1px solid #f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f59e0b', fontWeight: 800, fontSize: 13 }}>
+                              {ord.user.display_name ? ord.user.display_name.substring(0, 2).toUpperCase() : 'AU'}
+                            </div>
+                          )}
+                          <div>
+                            <span style={{ fontWeight: 800, fontSize: 14, color: '#e8f5ee', display: 'block' }}>
+                              {ord.user.display_name || 'Nienazwany autor'} {displayPseudo ? `(${displayPseudo})` : ''}
+                            </span>
+                            <span style={{ fontSize: 11, color: '#9dbfaa' }}>{ord.user.email}</span>
+                          </div>
+                        </div>
 
-                    <button
-                      disabled={resolveOrder.isPending}
-                      onClick={() => resolveOrder.mutate({ userId: ord.user.id, currentPseudonym: ord.user.pseudonym, plan: ord.requestedPlan })}
-                      className="btn btn-sm"
-                      style={{ background: '#4ade80', color: '#000', fontWeight: 700, fontSize: 12 }}
-                    >
-                      Aktywuj Plan {ord.requestedPlan.toUpperCase()}
-                    </button>
-                  </div>
-                ))}
+                        <span style={{ padding: '3px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700, background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)' }}>
+                          Nowe Zgłoszenie
+                        </span>
+                      </div>
+
+                      {/* Szczegóły zamówienia & statystyki użytkownika */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, background: '#0d1f15', padding: 10, borderRadius: 8, border: '1px solid #2a4a35', fontSize: 12 }}>
+                        <div>
+                          <span style={{ fontSize: 10, color: '#9dbfaa', textTransform: 'uppercase', display: 'block' }}>Zamówienie</span>
+                          <strong style={{ color: ord.requestedPlan === 'pro' ? '#ec4899' : '#3b82f6' }}>
+                            {ord.requestedPlan === 'pro' ? '🚀 Pro (19 zł/mc)' : '⭐ Podstawowy (9 zł/mc)'}
+                          </strong>
+                        </div>
+                        <div>
+                          <span style={{ fontSize: 10, color: '#9dbfaa', textTransform: 'uppercase', display: 'block' }}>Płatność</span>
+                          <strong>{ord.paymentMethod === 'blik' ? '📱 BLIK' : '🏦 Przelew Tradycyjny'}</strong>
+                        </div>
+                        <div>
+                          <span style={{ fontSize: 10, color: '#9dbfaa', textTransform: 'uppercase', display: 'block' }}>Dotychczasowe Słowa</span>
+                          <span>✍️ {(ord.user.total_words || 0).toLocaleString()} słów</span>
+                        </div>
+                        <div>
+                          <span style={{ fontSize: 10, color: '#9dbfaa', textTransform: 'uppercase', display: 'block' }}>Dołączył</span>
+                          <span>📅 {new Date(ord.user.created_at).toLocaleDateString('pl-PL')}</span>
+                        </div>
+                      </div>
+
+                      {ord.message && ord.message !== 'bez uwag' && (
+                        <div style={{ fontSize: 12, color: '#9dbfaa', fontStyle: 'italic', background: 'rgba(255,255,255,0.02)', padding: '8px 10px', borderRadius: 6, borderLeft: '3px solid #f59e0b' }}>
+                          Wiadomość od autora: "{ord.message}"
+                        </div>
+                      )}
+
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
+                        <button
+                          disabled={resolveOrder.isPending}
+                          onClick={() => resolveOrder.mutate({ userId: ord.user.id, currentPseudonym: ord.user.pseudonym, plan: ord.requestedPlan })}
+                          className="btn btn-sm"
+                          style={{ background: '#4ade80', color: '#000', fontWeight: 800, fontSize: 12, padding: '8px 16px' }}
+                        >
+                          Zatwierdź & Aktywuj Plan {ord.requestedPlan.toUpperCase()}
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
