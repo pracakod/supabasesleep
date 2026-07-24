@@ -1,10 +1,12 @@
+import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Profile } from '../types/database.types'
-import { Shield, Users, BookOpen, FileText, Star, LogOut, Trash2 } from 'lucide-react'
+import { Shield, Users, BookOpen, FileText, Star, LogOut, Trash2, Bell } from 'lucide-react'
 
 export default function AdminDashboard() {
   const qc = useQueryClient()
+  const [showNotificationsOnly, setShowNotificationsOnly] = useState(false)
 
   const isAdmin = localStorage.getItem('admin_session') === 'true'
 
@@ -161,6 +163,37 @@ export default function AdminDashboard() {
         </div>
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button
+            onClick={() => setShowNotificationsOnly(!showNotificationsOnly)}
+            className="btn btn-sm"
+            style={{
+              background: pendingOrders.length > 0 ? 'rgba(245, 158, 11, 0.2)' : 'rgba(255,255,255,0.05)',
+              borderColor: pendingOrders.length > 0 ? '#f59e0b' : '#2a4a35',
+              color: pendingOrders.length > 0 ? '#f59e0b' : '#9dbfaa',
+              fontSize: 12,
+              gap: 6,
+              position: 'relative'
+            }}
+          >
+            <Bell size={14} /> Powiadomienia
+            {pendingOrders.length > 0 && (
+              <span style={{
+                background: '#ef4444',
+                color: '#fff',
+                borderRadius: '50%',
+                fontSize: 10,
+                fontWeight: 800,
+                width: 18,
+                height: 18,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginLeft: 2
+              }}>
+                {pendingOrders.length}
+              </span>
+            )}
+          </button>
           <a href="/" className="btn btn-ghost btn-sm" style={{ borderColor: '#2a4a35', color: '#9dbfaa', fontSize: 12 }}>
             Aplikacja
           </a>
@@ -217,36 +250,49 @@ export default function AdminDashboard() {
 
 
         {/* Sekcja Nowe Zamówienia Planów */}
-        {pendingOrders.length > 0 && (
+        {(pendingOrders.length > 0 || showNotificationsOnly) && (
           <div className="card fade-in" style={{ background: '#122019', borderColor: '#f59e0b', padding: '16px 12px', marginBottom: 20 }}>
-            <h2 style={{ fontSize: 15, fontWeight: 800, color: '#f59e0b', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span>🔔</span> Oczekujące Zamówienia Planów ({pendingOrders.length})
-            </h2>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {pendingOrders.map((ord: any) => (
-                <div key={ord.user.id} style={{ background: '#172a1e', border: '1px solid #f59e0b', borderRadius: 8, padding: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-                  <div>
-                    <span style={{ fontWeight: 700, fontSize: 13, color: '#e8f5ee' }}>{ord.user.email || ord.user.display_name}</span>
-                    <div style={{ fontSize: 11, color: '#9dbfaa', marginTop: 2 }}>
-                      Wybrany plan: <strong style={{ color: ord.requestedPlan === 'pro' ? '#ec4899' : '#3b82f6' }}>{ord.requestedPlan === 'pro' ? '🚀 Pro (19 zł/mc)' : '⭐ Podstawowy (9 zł/mc)'}</strong> · Płatność: <strong>{ord.paymentMethod === 'blik' ? 'BLIK' : 'Przelew'}</strong>
-                    </div>
-                    {ord.message && ord.message !== 'bez uwag' && (
-                      <p style={{ fontSize: 11, color: '#9dbfaa', fontStyle: 'italic', marginTop: 4 }}>Wiadomość: "{ord.message}"</p>
-                    )}
-                  </div>
-
-                  <button
-                    disabled={resolveOrder.isPending}
-                    onClick={() => resolveOrder.mutate({ userId: ord.user.id, currentPseudonym: ord.user.pseudonym, plan: ord.requestedPlan })}
-                    className="btn btn-sm"
-                    style={{ background: '#4ade80', color: '#000', fontWeight: 700, fontSize: 12 }}
-                  >
-                    Aktywuj Plan {ord.requestedPlan.toUpperCase()}
-                  </button>
-                </div>
-              ))}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <h2 style={{ fontSize: 15, fontWeight: 800, color: '#f59e0b', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span>🔔</span> Oczekujące Zamówienia Planów ({pendingOrders.length})
+              </h2>
+              {showNotificationsOnly && (
+                <button onClick={() => setShowNotificationsOnly(false)} className="btn btn-ghost btn-sm" style={{ fontSize: 11 }}>
+                  Pokaż wszystkich
+                </button>
+              )}
             </div>
+
+            {pendingOrders.length === 0 ? (
+              <div style={{ padding: '16px 0', textAlign: 'center', color: '#9dbfaa', fontSize: 13 }}>
+                Brak nowych oczekujących zgłoszeń subskrypcji. Wszystkie zamówienia zostały obsłużone!
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {pendingOrders.map((ord: any) => (
+                  <div key={ord.user.id} style={{ background: '#172a1e', border: '1px solid #f59e0b', borderRadius: 8, padding: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+                    <div>
+                      <span style={{ fontWeight: 700, fontSize: 13, color: '#e8f5ee' }}>{ord.user.email || ord.user.display_name}</span>
+                      <div style={{ fontSize: 11, color: '#9dbfaa', marginTop: 2 }}>
+                        Wybrany plan: <strong style={{ color: ord.requestedPlan === 'pro' ? '#ec4899' : '#3b82f6' }}>{ord.requestedPlan === 'pro' ? '🚀 Pro (19 zł/mc)' : '⭐ Podstawowy (9 zł/mc)'}</strong> · Płatność: <strong>{ord.paymentMethod === 'blik' ? 'BLIK' : 'Przelew'}</strong>
+                      </div>
+                      {ord.message && ord.message !== 'bez uwag' && (
+                        <p style={{ fontSize: 11, color: '#9dbfaa', fontStyle: 'italic', marginTop: 4 }}>Wiadomość: "{ord.message}"</p>
+                      )}
+                    </div>
+
+                    <button
+                      disabled={resolveOrder.isPending}
+                      onClick={() => resolveOrder.mutate({ userId: ord.user.id, currentPseudonym: ord.user.pseudonym, plan: ord.requestedPlan })}
+                      className="btn btn-sm"
+                      style={{ background: '#4ade80', color: '#000', fontWeight: 700, fontSize: 12 }}
+                    >
+                      Aktywuj Plan {ord.requestedPlan.toUpperCase()}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
