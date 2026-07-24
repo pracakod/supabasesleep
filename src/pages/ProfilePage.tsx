@@ -54,7 +54,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!profile) return
     setDisplayName(profile.display_name || '')
-    setPseudonym(profile.pseudonym || '')
+    setPseudonym((profile.pseudonym || '').replace(/\[ORDER:[^\]]+\]/g, '').trim())
     setAvatarUrl(profile.avatar_url || '')
   }, [profile?.id]) // only re-sync when switching profiles, not on every change
 

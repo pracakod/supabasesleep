@@ -21,7 +21,7 @@ export default function Dashboard() {
   const { addLog, showToast } = useNotification()
   const qc = useQueryClient()
 
-  const [pseudonym, setPseudonym] = useState(profile?.pseudonym || 'D. K.')
+  const [pseudonym, setPseudonym] = useState((profile?.pseudonym || 'D. K.').replace(/\[ORDER:[^\]]+\]/g, '').trim())
   const [editingProject, setEditingProject] = useState(false)
 
   const handleOpenNewProjectModal = () => {
@@ -55,7 +55,9 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    if (profile?.pseudonym) setPseudonym(profile.pseudonym)
+    if (profile?.pseudonym) {
+      setPseudonym(profile.pseudonym.replace(/\[ORDER:[^\]]+\]/g, '').trim() || 'D. K.')
+    }
   }, [profile?.pseudonym])
 
   // Pobierz projekty użytkownika
