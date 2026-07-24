@@ -1,14 +1,16 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { supabase } from '../lib/supabase'
 import { Eye, EyeOff, Loader2, Feather } from 'lucide-react'
 
-type Mode = 'login' | 'register' | 'reset'
+type Mode = 'login' | 'register' | 'reset' | 'update-password'
 
-export default function AuthPage() {
+export default function AuthPage({ initialMode }: { initialMode?: Mode }) {
   const { signIn, signUp, resetPassword } = useAuth()
-  const [mode, setMode] = useState<Mode>('login')
+  const [mode, setMode] = useState<Mode>(initialMode || 'login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -16,6 +18,13 @@ export default function AuthPage() {
 
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [showTermsModal, setShowTermsModal] = useState<null | 'terms' | 'privacy'>(null)
+
+  useEffect(() => {
+    // Sprawdź czy użytkownik wszedł z linku resetującego hasło z Supabase (#access_token w URL)
+    if (window.location.hash.includes('type=recovery') || window.location.pathname === '/reset-password') {
+      setMode('update-password')
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,10 +48,31 @@ export default function AuthPage() {
       const { error } = await signUp(email, password, displayName)
       if (error) setMessage({ type: 'error', text: 'Błąd rejestracji: ' + error.message })
       else setMessage({ type: 'success', text: 'Sprawdź pocztę i aktywuj swoje konto autora.' })
-    } else {
+    } else if (mode === 'reset') {
       const { error } = await resetPassword(email)
       if (error) setMessage({ type: 'error', text: 'Nie udało się wysłać emaila.' })
       else setMessage({ type: 'success', text: 'Link do resetowania hasła wysłany na Twoją skrzynkę.' })
+    } else if (mode === 'update-password') {
+      if (password !== confirmPassword) {
+        setMessage({ type: 'error', text: 'Hasła nie są identyczne.' })
+        setLoading(false)
+        return
+      }
+      if (password.length < 6) {
+        setMessage({ type: 'error', text: 'Hasło musi mieć co najmniej 6 znaków.' })
+        setLoading(false)
+        return
+      }
+      const { error } = await supabase.auth.updateUser({ password })
+      if (error) {
+        setMessage({ type: 'error', text: 'Błąd zmiany hasła: ' + error.message })
+      } else {
+        setMessage({ type: 'success', text: 'Hasło zostało zmienione! Możesz się teraz zalogować.' })
+        setTimeout(() => {
+          setMode('login')
+          window.location.hash = ''
+        }, 2000)
+      }
     }
 
     setLoading(false)
@@ -111,7 +141,7 @@ export default function AuthPage() {
         </div>
 
         {/* Przełącznik Logowanie / Rejestracja */}
-        {mode !== 'reset' && (
+        {mode !== 'reset' && mode !== 'update-password' && (
           <div style={{
             display: 'flex',
             background: 'rgba(15, 23, 42, 0.8)',
@@ -163,33 +193,35 @@ export default function AuthPage() {
             </div>
           )}
 
-          <div>
-            <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#cbd5e1', marginBottom: 4 }}>
-              Adres e-mail
-            </label>
-            <input
-              type="email"
-              placeholder="autor@studioksiazki.pl"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              style={{
-                width: '100%',
-                padding: '9px 11px',
-                borderRadius: 8,
-                background: 'rgba(30, 41, 59, 0.5)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                color: '#ffffff',
-                fontSize: 13,
-                outline: 'none',
-              }}
-            />
-          </div>
+          {mode !== 'update-password' && (
+            <div>
+              <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#cbd5e1', marginBottom: 4 }}>
+                Adres e-mail
+              </label>
+              <input
+                type="email"
+                placeholder="autor@studioksiazki.pl"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                style={{
+                  width: '100%',
+                  padding: '9px 11px',
+                  borderRadius: 8,
+                  background: 'rgba(30, 41, 59, 0.5)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  color: '#ffffff',
+                  fontSize: 13,
+                  outline: 'none',
+                }}
+              />
+            </div>
+          )}
 
           {mode !== 'reset' && (
             <div>
               <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#cbd5e1', marginBottom: 4 }}>
-                Hasło
+                {mode === 'update-password' ? 'Nowe Hasło' : 'Hasło'}
               </label>
               <div style={{ position: 'relative' }}>
                 <input
@@ -221,6 +253,31 @@ export default function AuthPage() {
                   {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
+            </div>
+          )}
+
+          {mode === 'update-password' && (
+            <div>
+              <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#cbd5e1', marginBottom: 4 }}>
+                Powtórz nowe hasło
+              </label>
+              <input
+                type={showPass ? 'text' : 'password'}
+                placeholder="••••••••••••"
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                required
+                style={{
+                  width: '100%',
+                  padding: '9px 11px',
+                  borderRadius: 8,
+                  background: 'rgba(30, 41, 59, 0.5)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  color: '#ffffff',
+                  fontSize: 13,
+                  outline: 'none',
+                }}
+              />
             </div>
           )}
 

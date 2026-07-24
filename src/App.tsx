@@ -40,6 +40,10 @@ function SubApp() {
     return <AdminDashboard />
   }
 
+  if (path === '/reset-password' || window.location.hash.includes('type=recovery')) {
+    return <AuthPage initialMode="update-password" />
+  }
+
   // W innym wypadku (standardowa ścieżka aplikacji)
   if (!user) {
     return <AuthPage />
