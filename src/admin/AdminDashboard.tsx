@@ -22,27 +22,45 @@ export default function AdminDashboard() {
     }
   })
 
-  // Pobierz statystyki (liczba projektów)
+  // Pobierz zgłoszenia zamówień subskrypcji
+  const { data: upgradeRequests = [] } = useQuery({
+    queryKey: ['admin_upgrade_requests'],
+    enabled: isAdmin,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('upgrade_requests')
+        .select('*')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+      if (error) return []
+      return data || []
+    }
+  })
+
+  // Pobierz statystyki
   const { data: stats } = useQuery({
     queryKey: ['admin_stats'],
     enabled: isAdmin,
     queryFn: async () => {
-      // Pobieramy z widoku admin_stats
-      const { data, error } = await supabase
-        .from('admin_stats')
-        .select('*')
-        .single()
-      
+      const { data, error } = await supabase.from('admin_stats').select('*').single()
       if (error) {
-        // Fallback w razie braku uprawnień do widoku
         const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true })
-        return {
-          total_users: usersCount || 0,
-          total_projects: usersCount ? usersCount * 2 : 0, // Szacunkowo
-          total_words: 0
-        }
+        return { total_users: usersCount || 0, total_projects: (usersCount || 0) * 2 }
       }
       return data
+    }
+  })
+
+  // Mutacja zatwierdzająca zgłoszenie płatności
+  const resolveRequest = useMutation({
+    mutationFn: async ({ requestId, userId, plan }: { requestId: string; userId: string; plan: 'basic' | 'pro' }) => {
+      // Update status w profilu użytkownika
+      await supabase.from('profiles').update({ status: plan, updated_at: new Date().toISOString() }).eq('id', userId)
+      // Oznacz zgłoszenie jako zaakceptowane
+      await supabase.from('upgrade_requests').update({ status: 'completed' }).eq('id', requestId)
+    },
+    onSuccess: () => {
+      qc.invalidateQueries()
     }
   })
 
@@ -192,6 +210,40 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
+
+        {/* Nowe Zamówienia Subskrypcji */}
+        {upgradeRequests.length > 0 && (
+          <div className="card fade-in" style={{ background: '#122019', borderColor: '#f59e0b', padding: '16px 12px', marginBottom: 20 }}>
+            <h2 style={{ fontSize: 15, fontWeight: 800, color: '#f59e0b', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span>🔔</span> Nowe Zamówienia Planów ({upgradeRequests.length})
+            </h2>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {upgradeRequests.map((req: any) => (
+                <div key={req.id} style={{ background: '#172a1e', border: '1px solid #2a4a35', borderRadius: 8, padding: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+                  <div>
+                    <span style={{ fontWeight: 700, fontSize: 13, color: '#e8f5ee' }}>{req.user_email}</span>
+                    <div style={{ fontSize: 11, color: '#9dbfaa', marginTop: 2 }}>
+                      Zamówienie: <strong style={{ color: req.requested_plan === 'pro' ? '#ec4899' : '#3b82f6' }}>{req.requested_plan === 'pro' ? '🚀 Pro (19 zł)' : '⭐ Podstawowy (9 zł)'}</strong> · Płatność: <strong>{req.payment_method === 'blik' ? 'BLIK' : 'Przelew'}</strong>
+                    </div>
+                    {req.message && (
+                      <p style={{ fontSize: 11, color: '#9dbfaa', fontStyle: 'italic', marginTop: 4 }}>"{req.message}"</p>
+                    )}
+                  </div>
+
+                  <button
+                    disabled={resolveRequest.isPending}
+                    onClick={() => resolveRequest.mutate({ requestId: req.id, userId: req.user_id, plan: req.requested_plan })}
+                    className="btn btn-sm"
+                    style={{ background: '#4ade80', color: '#000', fontWeight: 700, fontSize: 12 }}
+                  >
+                    Aktywuj Plan {req.requested_plan.toUpperCase()}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Lista użytkowników */}
         <div className="card fade-in" style={{ background: '#122019', borderColor: '#2a4a35', padding: '16px 12px' }}>
