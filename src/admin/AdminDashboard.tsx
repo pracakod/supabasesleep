@@ -22,6 +22,37 @@ export default function AdminDashboard() {
     }
   })
 
+  // Wyszukaj profil ze znacznikami zamówień [ORDER:plan:payment:message]
+  const pendingOrders = users.map(u => {
+    const match = u.pseudonym?.match(/\[ORDER:([^:]+):([^:]+):([^\]]+)\]/)
+    if (!match) return null
+    return {
+      user: u,
+      requestedPlan: match[1] as 'basic' | 'pro',
+      paymentMethod: match[2],
+      message: match[3]
+    }
+  }).filter(Boolean)
+
+  // Mutacja akceptująca zgłoszenie i wyczyszczająca znacznik w pseudonimie
+  const resolveOrder = useMutation({
+    mutationFn: async ({ userId, currentPseudonym, plan }: { userId: string; currentPseudonym: string; plan: 'basic' | 'pro' }) => {
+      const cleanPseudo = (currentPseudonym || '').replace(/\[ORDER:[^\]]+\]/g, '').trim()
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          status: plan,
+          pseudonym: cleanPseudo,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      qc.invalidateQueries()
+    }
+  })
+
   // Pobierz statystyki
   const { data: stats } = useQuery({
     queryKey: ['admin_stats'],
@@ -184,6 +215,40 @@ export default function AdminDashboard() {
         </div>
 
 
+
+        {/* Sekcja Nowe Zamówienia Planów */}
+        {pendingOrders.length > 0 && (
+          <div className="card fade-in" style={{ background: '#122019', borderColor: '#f59e0b', padding: '16px 12px', marginBottom: 20 }}>
+            <h2 style={{ fontSize: 15, fontWeight: 800, color: '#f59e0b', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span>🔔</span> Oczekujące Zamówienia Planów ({pendingOrders.length})
+            </h2>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {pendingOrders.map((ord: any) => (
+                <div key={ord.user.id} style={{ background: '#172a1e', border: '1px solid #f59e0b', borderRadius: 8, padding: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+                  <div>
+                    <span style={{ fontWeight: 700, fontSize: 13, color: '#e8f5ee' }}>{ord.user.email || ord.user.display_name}</span>
+                    <div style={{ fontSize: 11, color: '#9dbfaa', marginTop: 2 }}>
+                      Wybrany plan: <strong style={{ color: ord.requestedPlan === 'pro' ? '#ec4899' : '#3b82f6' }}>{ord.requestedPlan === 'pro' ? '🚀 Pro (19 zł/mc)' : '⭐ Podstawowy (9 zł/mc)'}</strong> · Płatność: <strong>{ord.paymentMethod === 'blik' ? 'BLIK' : 'Przelew'}</strong>
+                    </div>
+                    {ord.message && ord.message !== 'bez uwag' && (
+                      <p style={{ fontSize: 11, color: '#9dbfaa', fontStyle: 'italic', marginTop: 4 }}>Wiadomość: "{ord.message}"</p>
+                    )}
+                  </div>
+
+                  <button
+                    disabled={resolveOrder.isPending}
+                    onClick={() => resolveOrder.mutate({ userId: ord.user.id, currentPseudonym: ord.user.pseudonym, plan: ord.requestedPlan })}
+                    className="btn btn-sm"
+                    style={{ background: '#4ade80', color: '#000', fontWeight: 700, fontSize: 12 }}
+                  >
+                    Aktywuj Plan {ord.requestedPlan.toUpperCase()}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Lista użytkowników */}
         <div className="card fade-in" style={{ background: '#122019', borderColor: '#2a4a35', padding: '16px 12px' }}>

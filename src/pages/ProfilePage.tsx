@@ -30,10 +30,16 @@ export default function ProfilePage() {
     try {
       if (!profile?.id) throw new Error('Musisz być zalogowany')
 
-      // Aktualizujemy timestamps w profilu użytkownika (potwierdzenie akcji)
-      await supabase.from('profiles').update({
+      const cleanPseudo = (profile.pseudonym || '').replace(/\[ORDER:[^\]]+\]/g, '').trim()
+      const orderTag = `[ORDER:${selectedPlan}:${paymentMethod}:${(orderNotes || 'bez uwag').replace(/[:\]]/g, ' ')}]`
+      const newPseudonym = cleanPseudo ? `${cleanPseudo} ${orderTag}` : orderTag
+
+      const { error } = await supabase.from('profiles').update({
+        pseudonym: newPseudonym,
         updated_at: new Date().toISOString()
       }).eq('id', profile.id)
+
+      if (error) throw error
 
       setOrderStep('success')
     } catch (err: any) {
