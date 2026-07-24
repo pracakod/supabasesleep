@@ -12,8 +12,6 @@ import {
   Pencil, Check, X, Loader2,
 } from 'lucide-react'
 
-const PSEUDONYM_SUGGESTIONS = ['SZRON', 'KRUK', 'CIEŃ', 'GRAD', 'GROT']
-
 export default function Dashboard() {
   const { profile, updateProfile } = useAuth()
   const { currentProject, setCurrentProject } = useProject()
@@ -260,22 +258,7 @@ export default function Dashboard() {
                 value={pseudonym}
                 onChange={e => handlePseudonymChange(e.target.value)}
                 placeholder="Twój pseudonim..."
-                style={{ marginBottom: 10 }}
               />
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                {PSEUDONYM_SUGGESTIONS.map(s => (
-                  <button key={s} onClick={() => handlePseudonymChange(s)}
-                    className="btn btn-ghost btn-sm"
-                    style={{
-                      fontWeight: 700, letterSpacing: 1,
-                      background: pseudonym === s ? 'var(--accent-glow)' : undefined,
-                      color: pseudonym === s ? 'var(--accent)' : undefined,
-                      borderColor: pseudonym === s ? 'var(--accent)' : undefined,
-                    }}>
-                    {s}
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* Cel słów */}
