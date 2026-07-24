@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { Eye, EyeOff, Loader2, Feather, CheckCircle2 } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Feather } from 'lucide-react'
 
 type Mode = 'login' | 'register' | 'reset'
 
@@ -122,7 +122,7 @@ export default function AuthPage() {
               </div>
             </div>
 
-            <div style={{ marginTop: 14 }}>
+            <div style={{ marginTop: 20 }}>
               <p style={{
                 fontFamily: 'Merriweather, serif',
                 fontSize: 14,
@@ -136,19 +136,6 @@ export default function AuthPage() {
                 — Maya Angelou
               </span>
             </div>
-          </div>
-
-          <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {[
-              'Twórz powieści i opowiadania',
-              'Drzewo postaci, lokacji i osie czasu',
-              'Zapis offline i pełna prywatność'
-            ].map((text, idx) => (
-              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: '#cbd5e1' }}>
-                <CheckCircle2 size={15} color="#818cf8" style={{ flexShrink: 0 }} />
-                <span>{text}</span>
-              </div>
-            ))}
           </div>
         </div>
 
