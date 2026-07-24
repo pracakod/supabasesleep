@@ -9,7 +9,7 @@ import { uploadToSupabase } from '../../hooks/useImageCompress'
 import type { Project } from '../../types/database.types'
 import {
   Plus, Download, BookOpen, Target,
-  Pencil, Check, X, Loader2,
+  Pencil, Check, X, Loader2, Trash2, AlertTriangle,
 } from 'lucide-react'
 
 export default function Dashboard() {
@@ -19,6 +19,8 @@ export default function Dashboard() {
 
   const [pseudonym, setPseudonym] = useState(profile?.pseudonym || 'D. K.')
   const [editingProject, setEditingProject] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteConfirmInput, setDeleteConfirmInput] = useState('')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [projectForm, setProjectForm] = useState({ title: '', subtitle: '', genre: '', target_words: 80000 })
 
@@ -99,6 +101,24 @@ export default function Dashboard() {
     onError: (err: any) => {
       console.error('[Dashboard] Błąd w createProject mutation:', err)
       setErrorMsg(err.message || 'Wystąpił nieoczekiwany błąd podczas tworzenia projektu.')
+    }
+  })
+  // Usunięcie projektu
+  const deleteProject = useMutation({
+    mutationFn: async () => {
+      if (!currentProject) return
+      const { error } = await supabase.from('projects').delete().eq('id', currentProject.id)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['projects'] })
+      const remaining = projects.filter(p => p.id !== currentProject?.id)
+      setCurrentProject(remaining.length > 0 ? remaining[0] : null)
+      setShowDeleteModal(false)
+      setDeleteConfirmInput('')
+    },
+    onError: (err: any) => {
+      alert('Błąd podczas usuwania projektu: ' + err.message)
     }
   })
 
@@ -281,9 +301,12 @@ export default function Dashboard() {
             </div>
 
             {/* Akcje */}
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               <button onClick={downloadBackup} className="btn btn-ghost">
-                <Download size={14} /> Backup projektu (.json)
+                <Download size={14} /> Backup (.json)
+              </button>
+              <button onClick={() => { setShowDeleteModal(true); setDeleteConfirmInput(''); }} className="btn btn-ghost" style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
+                <Trash2 size={14} /> Usuń projekt
               </button>
             </div>
           </div>
@@ -301,7 +324,68 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Modal usuwania projektu z wpisaniem DELETE */}
+      {showDeleteModal && currentProject && (
+        <div className="modal-backdrop" onClick={() => setShowDeleteModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 440 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: 10,
+                background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444', flexShrink: 0
+              }}>
+                <AlertTriangle size={22} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                  Usuwanie projektu
+                </h3>
+                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Ta operacja jest nieodwracalna</span>
+              </div>
+            </div>
 
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 16 }}>
+              Czy na pewno chcesz bezpowrotnie usunąć projekt <strong>„{currentProject.title}”</strong>? Wszystkie rozdziały, postacie i dane projektu zostaną skasowane.
+            </p>
+
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>
+                Aby potwierdzić, wpisz poniżej słowo <span style={{ color: '#ef4444', fontWeight: 800 }}>DELETE</span>:
+              </label>
+              <input
+                type="text"
+                className="input"
+                placeholder="Wpisz DELETE"
+                value={deleteConfirmInput}
+                onChange={e => setDeleteConfirmInput(e.target.value)}
+                style={{
+                  borderColor: deleteConfirmInput === 'DELETE' ? '#ef4444' : undefined,
+                  letterSpacing: 1,
+                  fontWeight: 600,
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowDeleteModal(false)} className="btn btn-ghost">
+                Anuluj
+              </button>
+              <button
+                disabled={deleteConfirmInput !== 'DELETE' || deleteProject.isPending}
+                onClick={() => deleteProject.mutate()}
+                className="btn btn-danger"
+                style={{
+                  opacity: deleteConfirmInput === 'DELETE' ? 1 : 0.5,
+                  cursor: deleteConfirmInput === 'DELETE' ? 'pointer' : 'not-allowed'
+                }}
+              >
+                {deleteProject.isPending ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                Usuń nieodwracalnie
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal nowego projektu */}
       {editingProject && (
