@@ -48,15 +48,22 @@ export default function AdminDashboard() {
 
   // Mutacje statusu użytkownika
   const updateStatus = useMutation({
-    mutationFn: async ({ userId, status }: { userId: string; status: 'free' | 'basic' | 'pro' | 'blocked' }) => {
+    mutationFn: async ({ userId, status }: { userId: string; status: 'free' | 'premium' | 'blocked' }) => {
       const { error } = await supabase
         .from('profiles')
         .update({ status, updated_at: new Date().toISOString() })
         .eq('id', userId)
-      if (error) throw error
+      if (error) {
+        console.error('[Admin] Błąd zmiany statusu:', error)
+        throw error
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin_profiles'] })
+    },
+    onError: (err: any) => {
+      console.error('[Admin] Błąd:', err)
+      alert(`Nie udało się zmienić statusu! Błąd z bazy danych: ${err.message || JSON.stringify(err)}`)
     }
   })
 
@@ -82,9 +89,7 @@ export default function AdminDashboard() {
 
   // Obliczenia statystyk z pobranych profili (jako backup)
   const totalWords = users.reduce((acc, u) => acc + (u.total_words || 0), 0)
-  const basicCount  = users.filter(u => u.status === 'basic').length
-  const proCount    = users.filter(u => u.status === 'pro').length
-  const blockedCount = users.filter(u => u.status === 'blocked').length
+  const premiumCount = users.filter(u => u.status === 'premium').length
 
   if (!isAdmin) {
     window.location.href = '/admin-login'
@@ -94,19 +99,24 @@ export default function AdminDashboard() {
   return (
     <div style={{
       minHeight: '100vh',
+      height: 'auto',
+      overflowY: 'auto',
+      WebkitOverflowScrolling: 'touch',
       background: '#0d1f15',
       color: '#e8f5ee',
       fontFamily: 'Inter, sans-serif'
     }}>
       {/* Topbar Admina */}
       <header style={{
-        height: 64,
+        minHeight: 64,
         background: '#122019',
         borderBottom: '1px solid #2a4a35',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 24px',
+        padding: '12px 16px',
+        flexWrap: 'wrap',
+        gap: 12,
         position: 'sticky',
         top: 0,
         zIndex: 50
@@ -129,164 +139,157 @@ export default function AdminDashboard() {
           <span className="badge badge-accent" style={{ fontSize: 9, padding: '2px 6px' }}>SaaS Console</span>
         </div>
 
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <a href="/" className="btn btn-ghost btn-sm" style={{ borderColor: '#2a4a35', color: '#9dbfaa' }}>
-            Aplikacja Pisarza
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <a href="/" className="btn btn-ghost btn-sm" style={{ borderColor: '#2a4a35', color: '#9dbfaa', fontSize: 12 }}>
+            Aplikacja
           </a>
-          <button onClick={handleLogout} className="btn btn-danger btn-sm" style={{ gap: 6 }}>
+          <button onClick={handleLogout} className="btn btn-danger btn-sm" style={{ gap: 4, fontSize: 12 }}>
             <LogOut size={13} /> Wyloguj
           </button>
         </div>
       </header>
 
-      <main style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
+      <main style={{ padding: '16px 12px 80px 12px', maxWidth: 1200, margin: '0 auto' }}>
         {/* Sekcja Statystyk */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20, marginBottom: 32 }}>
-          <div className="card" style={{ background: '#122019', borderColor: '#2a4a35', display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 10, background: 'rgba(74, 222, 128, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4ade80' }}>
-              <Users size={22} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 20 }}>
+          <div className="card" style={{ background: '#122019', borderColor: '#2a4a35', display: 'flex', alignItems: 'center', gap: 12, padding: 12 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(74, 222, 128, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4ade80', flexShrink: 0 }}>
+              <Users size={18} />
             </div>
             <div>
-              <span style={{ fontSize: 12, color: '#9dbfaa' }}>Wszyscy Autorzy</span>
-              <h2 style={{ fontSize: 24, fontWeight: 800, marginTop: 2 }}>{users.length}</h2>
+              <span style={{ fontSize: 11, color: '#9dbfaa' }}>Autorzy</span>
+              <h2 style={{ fontSize: 18, fontWeight: 800, marginTop: 1 }}>{users.length}</h2>
             </div>
           </div>
 
-          <div className="card" style={{ background: '#122019', borderColor: '#2a4a35', display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 10, background: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6' }}>
-              <BookOpen size={22} />
+          <div className="card" style={{ background: '#122019', borderColor: '#2a4a35', display: 'flex', alignItems: 'center', gap: 12, padding: 12 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6', flexShrink: 0 }}>
+              <BookOpen size={18} />
             </div>
             <div>
-              <span style={{ fontSize: 12, color: '#9dbfaa' }}>Aktywne Projekty</span>
-              <h2 style={{ fontSize: 24, fontWeight: 800, marginTop: 2 }}>{stats?.total_projects || 0}</h2>
+              <span style={{ fontSize: 11, color: '#9dbfaa' }}>Projekty</span>
+              <h2 style={{ fontSize: 18, fontWeight: 800, marginTop: 1 }}>{stats?.total_projects || 0}</h2>
             </div>
           </div>
 
-          <div className="card" style={{ background: '#122019', borderColor: '#2a4a35', display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 10, background: 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f59e0b' }}>
-              <FileText size={22} />
+          <div className="card" style={{ background: '#122019', borderColor: '#2a4a35', display: 'flex', alignItems: 'center', gap: 12, padding: 12 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f59e0b', flexShrink: 0 }}>
+              <FileText size={18} />
             </div>
             <div>
-              <span style={{ fontSize: 12, color: '#9dbfaa' }}>Napisane Słowa (SaaS)</span>
-              <h2 style={{ fontSize: 24, fontWeight: 800, marginTop: 2 }}>{totalWords.toLocaleString()}</h2>
+              <span style={{ fontSize: 11, color: '#9dbfaa' }}>Słowa</span>
+              <h2 style={{ fontSize: 18, fontWeight: 800, marginTop: 1 }}>{totalWords.toLocaleString()}</h2>
             </div>
           </div>
 
-          <div className="card" style={{ background: '#122019', borderColor: '#2a4a35', display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 10, background: 'rgba(236, 72, 153, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ec4899' }}>
-              <Star size={22} />
+          <div className="card" style={{ background: '#122019', borderColor: '#2a4a35', display: 'flex', alignItems: 'center', gap: 12, padding: 12 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(236, 72, 153, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ec4899', flexShrink: 0 }}>
+              <Star size={18} />
             </div>
             <div>
-              <span style={{ fontSize: 12, color: '#9dbfaa' }}>Basic / Pro</span>
-              <h2 style={{ fontSize: 24, fontWeight: 800, marginTop: 2 }}>{basicCount + proCount}</h2>
-              <span style={{ fontSize: 10, color: '#9dbfaa' }}>{basicCount} basic · {proCount} pro · {blockedCount} zablok.</span>
+              <span style={{ fontSize: 11, color: '#9dbfaa' }}>Premium</span>
+              <h2 style={{ fontSize: 18, fontWeight: 800, marginTop: 1 }}>{premiumCount}</h2>
             </div>
           </div>
         </div>
 
         {/* Lista użytkowników */}
-        <div className="card fade-in" style={{ background: '#122019', borderColor: '#2a4a35', padding: 24 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 800, marginBottom: 20 }}>Zarządzanie Użytkownikami SaaS</h2>
+        <div className="card fade-in" style={{ background: '#122019', borderColor: '#2a4a35', padding: '16px 12px' }}>
+          <h2 style={{ fontSize: 16, fontWeight: 800, marginBottom: 16 }}>Zarządzanie Użytkownikami SaaS</h2>
 
           {isLoading ? (
             <div style={{ textAlign: 'center', padding: 40, color: '#9dbfaa' }}>Ładowanie danych użytkowników...</div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th style={{ color: '#9dbfaa', borderBottomColor: '#2a4a35' }}>Autor</th>
-                    <th style={{ color: '#9dbfaa', borderBottomColor: '#2a4a35' }}>Email</th>
-                    <th style={{ color: '#9dbfaa', borderBottomColor: '#2a4a35' }}>Data dołączenia</th>
-                    <th style={{ color: '#9dbfaa', borderBottomColor: '#2a4a35' }}>Słowa</th>
-                    <th style={{ color: '#9dbfaa', borderBottomColor: '#2a4a35' }}>Subskrypcja</th>
-                    <th style={{ color: '#9dbfaa', borderBottomColor: '#2a4a35', textAlign: 'right' }}>Akcje</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map(user => (
-                    <tr key={user.id}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          {user.avatar_url ? (
-                            <img src={user.avatar_url} alt={user.display_name} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover' }} />
-                          ) : (
-                            <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#172a1e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, border: '1px solid #2a4a35' }}>
-                              {user.display_name ? user.display_name.substring(0, 2).toUpperCase() : 'DK'}
-                            </div>
-                          )}
-                          <div>
-                            <span style={{ fontWeight: 600 }}>{user.display_name || 'Nienazwany autor'}</span>
-                            <span style={{ fontSize: 11, color: '#9dbfaa', display: 'block' }}>Pseudonim: {user.pseudonym}</span>
-                          </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {users.map(user => (
+                <div key={user.id} style={{
+                  background: '#172a1e',
+                  border: '1px solid #2a4a35',
+                  borderRadius: 10,
+                  padding: 12,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      {user.avatar_url ? (
+                        <img src={user.avatar_url} alt={user.display_name} style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#0d1f15', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, border: '1px solid #2a4a35', color: '#4ade80', fontWeight: 700 }}>
+                          {user.display_name ? user.display_name.substring(0, 2).toUpperCase() : 'DK'}
                         </div>
-                      </td>
-                      <td style={{ color: '#9dbfaa' }}>{user.email || 'brak email'}</td>
-                      <td style={{ color: '#9dbfaa' }}>{new Date(user.created_at).toLocaleDateString('pl-PL')}</td>
-                      <td style={{ fontWeight: 600 }}>{(user.total_words || 0).toLocaleString()}</td>
-                      <td>
-                        <span style={{
-                          padding: '3px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700,
-                          background: user.status === 'pro' ? 'rgba(236,72,153,0.15)'
-                            : user.status === 'basic' ? 'rgba(59,130,246,0.15)'
-                            : user.status === 'blocked' ? 'rgba(239,68,68,0.15)'
-                            : 'rgba(74,222,128,0.1)',
-                          color: user.status === 'pro' ? '#ec4899'
-                            : user.status === 'basic' ? '#3b82f6'
-                            : user.status === 'blocked' ? '#ef4444'
-                            : '#4ade80',
-                        }}>
-                          {user.status === 'pro' ? '🚀 Pro'
-                            : user.status === 'basic' ? '⭐ Podstawowa'
-                            : user.status === 'blocked' ? '🚫 Zablokowany'
-                            : '🆓 Darmowy'}
-                        </span>
-                      </td>
-                      <td style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', alignItems: 'center' }}>
-                          <select
-                            value={user.status}
-                            onChange={e => updateStatus.mutate({ userId: user.id, status: e.target.value as any })}
-                            style={{
-                              background: '#0d1f15',
-                              border: '1px solid #2a4a35',
-                              borderRadius: 6,
-                              color: '#e8f5ee',
-                              fontSize: 12,
-                              padding: '4px 8px',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            <option value="free">🆓 Darmowy</option>
-                            <option value="basic">⭐ Podstawowa</option>
-                            <option value="pro">🚀 Pro</option>
-                            <option value="blocked">🚫 Zablokowany</option>
-                          </select>
+                      )}
+                      <div>
+                        <span style={{ fontWeight: 700, fontSize: 14 }}>{user.display_name || 'Nienazwany autor'}</span>
+                        <span style={{ fontSize: 11, color: '#9dbfaa', display: 'block' }}>{user.email || 'brak email'}</span>
+                      </div>
+                    </div>
 
-                          <button
-                            onClick={() => {
-                              if (confirm('Czy na pewno chcesz usunąć to konto autorskie? Akcja jest nieodwracalna.')) {
-                                deleteUser.mutate(user.id)
-                              }
-                            }}
-                            className="btn-icon btn-ghost"
-                            style={{ borderColor: '#2a4a35', color: '#ef4444', padding: 5 }}
-                          >
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {users.length === 0 && (
-                    <tr>
-                      <td colSpan={6} style={{ textAlign: 'center', padding: '30px 10px', color: '#9dbfaa' }}>
-                        Brak zarejestrowanych autorów w bazie.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                    <span style={{
+                      padding: '3px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700,
+                      background: user.status === 'premium' ? 'rgba(245,158,11,0.15)'
+                        : user.status === 'blocked' ? 'rgba(239,68,68,0.15)'
+                        : 'rgba(74,222,128,0.1)',
+                      color: user.status === 'premium' ? '#f59e0b'
+                        : user.status === 'blocked' ? '#ef4444'
+                        : '#4ade80',
+                    }}>
+                      {user.status === 'premium' ? '⭐ Premium'
+                        : user.status === 'blocked' ? '🚫 Zablokowany'
+                        : '🆓 Darmowy'}
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12, color: '#9dbfaa', paddingTop: 6, borderTop: '1px dashed #2a4a35' }}>
+                    <span>Słowa: <strong style={{ color: '#e8f5ee' }}>{(user.total_words || 0).toLocaleString()}</strong></span>
+                    <span>Dołączył: {new Date(user.created_at).toLocaleDateString('pl-PL')}</span>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'space-between', paddingTop: 4 }}>
+                    <label style={{ fontSize: 12, color: '#9dbfaa' }}>Status konta:</label>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <select
+                        value={user.status || 'free'}
+                        disabled={updateStatus.isPending}
+                        onChange={e => updateStatus.mutate({ userId: user.id, status: e.target.value as any })}
+                        style={{
+                          background: '#0d1f15',
+                          border: '1px solid #2a4a35',
+                          borderRadius: 6,
+                          color: '#e8f5ee',
+                          fontSize: 12,
+                          padding: '6px 10px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <option value="free">🆓 Darmowy</option>
+                        <option value="premium">⭐ Premium</option>
+                        <option value="blocked">🚫 Zablokowany</option>
+                      </select>
+
+                      <button
+                        onClick={() => {
+                          if (confirm('Czy na pewno chcesz usunąć to konto autorskie? Akcja jest nieodwracalna.')) {
+                            deleteUser.mutate(user.id)
+                          }
+                        }}
+                        className="btn-icon btn-ghost"
+                        style={{ borderColor: '#2a4a35', color: '#ef4444', padding: 6 }}
+                        title="Usuń konto"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {users.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '30px 10px', color: '#9dbfaa' }}>
+                  Brak zarejestrowanych autorów w bazie.
+                </div>
+              )}
             </div>
           )}
         </div>
