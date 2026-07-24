@@ -116,7 +116,10 @@ export default function ImageUploader({
       )}
 
       <style>{`
-        div:hover .img-hover-overlay { opacity: 1 !important; }
+        .img-hover-overlay { opacity: 0; transition: opacity 0.2s; }
+        @media (hover: hover) {
+          div:hover .img-hover-overlay { opacity: 1 !important; }
+        }
       `}</style>
     </div>
   )
